@@ -1,0 +1,19 @@
+body {
+    padding: 5px;
+    position: center;
+}
+h1 {
+    color: rgb(27, 7, 181);
+    outline-style: groove;
+    outline-width: 5px;
+    outline-color: red;
+    text-align: center;
+}
+a {
+    background-color: white;
+    outline-style: groove;
+    outline-width: 5px;
+    outline-color: red;
+    text-align: center;
+    font-size: large;
+}
