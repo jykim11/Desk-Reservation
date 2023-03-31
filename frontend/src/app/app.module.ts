@@ -33,8 +33,7 @@ import { ErrorDialogComponent } from './navigation/error-dialog/error-dialog.com
 import { HomeComponent } from './home/home.component';
 import { GateComponent } from './gate/gate.component';
 import { ProfileEditorComponent } from './profile/profile-editor/profile-editor.component';
-import { EquipmentComponent } from './equipment/equipment.component';
-import { TopBarComponent } from './top-bar/top-bar.component';
+import { ReservationComponent } from './reservation/reservation.component';
 
 @NgModule({
   declarations: [
@@ -44,8 +43,7 @@ import { TopBarComponent } from './top-bar/top-bar.component';
     HomeComponent,
     GateComponent,
     ProfileEditorComponent,
-    EquipmentComponent,
-    TopBarComponent
+    ReservationComponent,
   ],
   imports: [
     BrowserModule,
@@ -83,4 +81,4 @@ import { TopBarComponent } from './top-bar/top-bar.component';
   }],
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule { }
