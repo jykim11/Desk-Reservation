@@ -18,6 +18,10 @@ from .user_entity import UserEntity
 from .role_entity import RoleEntity
 from .permission_entity import PermissionEntity
 from .user_role_entity import user_role_table
+from .desk_entity import DeskEntity
+from .resource_entity import ResourceEntity
+from .desk_resource_entity import desk_resource_table
+from .desk_reservation import DeskReservationEntity
 
 
 __authors__ = ["Kris Jordan"]

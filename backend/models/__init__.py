@@ -5,6 +5,9 @@ from .permission import Permission
 from .user import User, ProfileForm, NewUser
 from .role import Role
 from .role_details import RoleDetails
+from .desk import Desk
+from .resource import Resource
+from .desk_reservation import DeskReservation
 
 __authors__ = ["Kris Jordan"]
 __copyright__ = "Copyright 2023"

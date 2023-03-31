@@ -61,3 +61,40 @@ with Session(engine) as session:
         session.add(entity)
     session.execute(text(f'ALTER SEQUENCE permission_id_seq RESTART WITH {len(permissions.pairs) + 1}'))
     session.commit()
+
+# Add Desks
+with Session(engine) as session:
+    from .dev_data import desks
+    to_entity = entities.DeskEntity.from_model
+    session.add_all([to_entity(model) for model in desks.models])
+    session.execute(text(f'ALTER SEQUENCE {entities.DeskEntity.__table__}_id_seq RESTART WITH {len(desks.models) +1}'))
+    session.commit()
+
+# Add Resources
+with Session(engine) as session:
+    from .dev_data import resources
+    to_entity = entities.ResourceEntity.from_model
+    session.add_all([to_entity(model) for model in desks.models])
+    session.execute(text(f'ALTER SEQUENCE {entities.ResourceEntity.__table__}_id_seq RESTART WITH {len(resources.models) +1}'))
+    session.commit()
+
+# Add Resources to Desks
+with Session(engine) as session:
+    from ..entities import DeskEntity, ResourceEntity
+    from .dev_data import desk_resource
+    for desk, resource in desk_resource.pairs:
+        desk_entity = session.get(DeskEntity, desk.id)
+        resource_entity = session.get(ResourceEntity, resource.id)
+        desk_entity.resources.append(resource_entity)
+    session.commit()
+
+# Add Reservations
+with Session(engine) as session:
+    from .dev_data import desk_reservations
+    to_entity = entities.DeskReservationEntity.from_model
+    for reservation, desk in desk_reservations.pairs:
+        reservation = entities.DeskReservationEntity.from_model(reservation)
+        reservation.desk_id = session.get(DeskEntity, desk.id).id
+        session.add(reservation)
+    session.execute(text(f'ALTER SEQUENCE {entities.DeskReservationEntity.__table__}_id_seq RESTART WITH {len(desk_reservations.models) +1}'))
+    session.commit()
