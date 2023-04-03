@@ -11,8 +11,8 @@ class ResService:
         self._session = session
         self._permission = permission
 
-    def listdesks(self, subject: User) -> list[Desk]:
-        self._permission.enforce(subject, 'reservation.listdesks', 'reservation/')
+    def listdesks(self) -> list[Desk]:
+        #self._permission.enforce(subject, 'reservation.listdesks', 'reservation/')
         stmt = select(DeskEntity).order_by(DeskEntity.id)
         desk_entities = self._session.execute(stmt).scalars()
         return [desk_entity.to_model() for desk_entity in desk_entities]

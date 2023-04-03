@@ -34,6 +34,7 @@ import { HomeComponent } from './home/home.component';
 import { GateComponent } from './gate/gate.component';
 import { ProfileEditorComponent } from './profile/profile-editor/profile-editor.component';
 import { ReservationComponent } from './reservation/reservation.component';
+import { MatTableModule } from '@angular/material/table';
 
 @NgModule({
   declarations: [
@@ -66,6 +67,7 @@ import { ReservationComponent } from './reservation/reservation.component';
     MatSnackBarModule,
     MatTabsModule,
     MatToolbarModule,
+    MatTableModule,
     JwtModule.forRoot({
       config: {
         tokenGetter: () => {
