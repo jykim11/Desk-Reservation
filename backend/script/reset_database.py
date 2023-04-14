@@ -92,9 +92,10 @@ with Session(engine) as session:
 with Session(engine) as session:
     from .dev_data import desk_reservations
     to_entity = entities.DeskReservationEntity.from_model
-    for reservation, desk in desk_reservations.pairs:
+    for reservation, desk, user in desk_reservations.pairs:
         reservation = entities.DeskReservationEntity.from_model(reservation)
         reservation.desk_id = session.get(DeskEntity, desk.id).id
+        reservation.user_id = session.get(UserEntity, user.id).id
         session.add(reservation)
     session.execute(text(f'ALTER SEQUENCE {entities.DeskReservationEntity.__table__}_id_seq RESTART WITH {len(desk_reservations.models) +1}'))
     session.commit()

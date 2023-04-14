@@ -24,6 +24,9 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { FormsModule } from '@angular/forms';
 
 /* Application Specific */
 import { AppRoutingModule } from './app-routing.module';
@@ -35,6 +38,7 @@ import { GateComponent } from './gate/gate.component';
 import { ProfileEditorComponent } from './profile/profile-editor/profile-editor.component';
 import { ReservationComponent } from './reservation/reservation.component';
 import { MatTableModule } from '@angular/material/table';
+import { ReservationDialogComponent } from './reservation-dialog/reservation-dialog.component';
 
 @NgModule({
   declarations: [
@@ -45,6 +49,7 @@ import { MatTableModule } from '@angular/material/table';
     GateComponent,
     ProfileEditorComponent,
     ReservationComponent,
+    ReservationDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -67,6 +72,9 @@ import { MatTableModule } from '@angular/material/table';
     MatSnackBarModule,
     MatTabsModule,
     MatToolbarModule,
+    MatDatepickerModule, 
+    MatNativeDateModule,
+    FormsModule,
     MatTableModule,
     JwtModule.forRoot({
       config: {

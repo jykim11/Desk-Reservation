@@ -1,17 +1,72 @@
-<table mat-table [dataSource]="desk" class="mat-elevation-z8">
+<!-- <nav mat-tab-nav-bar [tabPanel]="tabPanel"> 
+    <a mat-tab-link label = "Hello1"></a>
+    <a mat-tab-link>Hello2</a>
+ </nav>
 
-    <!-- Desk Name -->
-    <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef> Desk Name </th>
-        <td mat-cell *matCellDef="let desk"> {{ desk.name }} </td>
-    </ng-container>
+ <mat-tab-nav-panel #tabPanel>
+    <router-outlet></router-outlet>
+</mat-tab-nav-panel> -->
+<div style="position: sticky; overflow-y: scroll; ">
 
-    <!-- Desk Availability -->
-    <ng-container matColumnDef="available">
-        <th mat-header-cell *matHeaderCellDef> Availability </th>
-        <td mat-cell *matCellDef="let desk" ng-if="desk.available"> {{ desk.available ? 'Yes' : 'No' }} </td>
-    </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-</table>
+    <mat-tab-group dynamicHeight>
+        <mat-tab label="Desk Reservations">
+            <div class="holder1">
+                <h2> Your Desk Reservations</h2>
+                <h2>Avaliable Desks</h2>
+                <div>
+                    <table mat-table [dataSource]="desk" class="mat-elevation-z8">
+
+                        <!-- Desk Name -->
+                        <ng-container matColumnDef="desk_tag">
+                            <th mat-header-cell *matHeaderCellDef> Desk Tag </th>
+                            <td mat-cell *matCellDef="let desk"> {{ desk.tag }} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="desk_type">
+                            <th mat-header-cell *matHeaderCellDef> Desk Type </th>
+                            <td mat-cell *matCellDef="let desk"> {{ desk.desk_type }} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="included_resource">
+                            <th mat-header-cell *matHeaderCellDef> Included Resource </th>
+                            <td mat-cell *matCellDef="let desk"> {{ desk.included_resource }} </td>
+                        </ng-container>
+
+                        <!-- Desk Availability -->
+                        <ng-container matColumnDef="available">
+                            <th mat-header-cell *matHeaderCellDef> Availability </th>
+                            <td mat-cell *matCellDef="let desk" ng-if="desk.available"> {{ desk.available ? 'Yes' : 'No'
+                                }} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="time_select">
+                            <th mat-header-cell *matHeaderCellDef></th>
+                            <td mat-cell *matCellDef="let desk">
+                                <mat-form-field>
+                                    <input matInput [matDatepicker]="picker" placeholder="Choose a date">
+                                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                    <mat-datepicker #picker></mat-datepicker>
+                                </mat-form-field>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="reserve">
+                            <th mat-header-cell *matHeaderCellDef></th>
+                            <td mat-cell *matCellDef="let desk"><button mat-button color="accent" (click)="openDialog()">Reserve</button></td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                    </table>
+                </div>
+            </div>
+        </mat-tab>
+        <mat-tab label="Equipment Reservations">
+            <div class="holder1">
+            <h2> Your Equipment Reservations</h2>
+            <h2>Avaliable Equipments</h2>
+        </div>
+        </mat-tab>
+    </mat-tab-group>
+</div>

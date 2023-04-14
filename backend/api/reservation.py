@@ -15,3 +15,9 @@ def list_desks(desk_res: ResService = Depends()):
         return desk_res.listdesks()
     except UserPermissionError as e:
         raise HTTPException(status_code=403, detail=str(e))
+
+#get available desks  
+
+#post -- reserve desk
+#post -- unreserve desk
+

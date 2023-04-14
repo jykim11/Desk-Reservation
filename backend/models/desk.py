@@ -4,6 +4,8 @@ from pydantic import BaseModel
 
 class Desk(BaseModel):
     id: int | None = None
-    name: str = ""
+    tag: str = ""
+    desk_type: str = ""
+    included_resource: str = ""
     available: bool = True
 

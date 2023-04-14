@@ -9,7 +9,7 @@ class ResourceEntity(EntityBase):
     __tablename__ = "resource"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(String, unique=True)
+    tag: Mapped[str] = mapped_column(String, unique=True)
 
     desks: Mapped[list['DeskEntity']] = relationship(secondary=desk_resource_table, back_populates='resources')
 
@@ -17,12 +17,12 @@ class ResourceEntity(EntityBase):
     def from_model(cls, model: Resource) -> Self:
         return cls(
             id=model.id,
-            name=model.name,
+            tag=model.tag,
         )
     
     def to_model(self) -> Resource:
         return Resource(
             id=self.id,
-            name=self.name
+            tag=self.tag
         )
 

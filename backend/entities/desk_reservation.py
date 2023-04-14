@@ -12,7 +12,8 @@ class DeskReservationEntity(EntityBase):
     date: Mapped[datetime] = mapped_column(Date, unique=False)
 
     desk_id: Mapped[int] = mapped_column(ForeignKey('desk.id'), nullable=True)
-    __table_args__ = (UniqueConstraint('desk_id', 'date', name='reservation_detail'),)
+    user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=True)
+    __table_args__ = (UniqueConstraint('desk_id', 'date', name='reservation_detail'),UniqueConstraint('user_id', 'date', name='user_reservation_time'))
 
     @classmethod
     def from_model(cls, model: DeskReservation) -> Self:
@@ -26,4 +27,3 @@ class DeskReservationEntity(EntityBase):
             id=self.id,
             date=self.date
         )
-
