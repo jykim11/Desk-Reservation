@@ -47,3 +47,11 @@ def unreserve_desk(desk: Desk, reservation: DeskReservation, subject : User = De
         return desk_res.remove_desk_reservation(desk, subject, reservation)
     except Exception as e:
         raise HTTPException(status_code=403, detail=str(e))
+    
+# All Desk Reservations
+@api.get("/admin/all", tags=['Reservation'])
+def list_all_desk_reservations(subject : User = Depends(registered_user), desk_res: ResService = Depends()):
+    try:
+        return desk_res.list_all_desk_reservations()
+    except UserPermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))

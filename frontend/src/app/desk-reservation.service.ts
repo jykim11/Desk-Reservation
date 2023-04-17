@@ -21,4 +21,6 @@ export class DeskReservationService {
   cancelDeskReservation(desk: Desk, reservation: DeskReservation): Observable<DeskReservation> {
     return this.http.post<DeskReservation>('/api/reservation/unreserve', {desk, reservation});
   }
+
+ 
 }

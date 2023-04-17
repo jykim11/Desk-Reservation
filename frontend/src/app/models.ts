@@ -17,6 +17,15 @@ export interface DeskReservationEntry {
     date: string;
 }
 
+export interface User {
+    id: number;
+    pid: number;
+    onyen: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    pronouns: string;
+}
 export interface DeskReservationTuple {
     item: [[DeskReservation, Desk]];
 }

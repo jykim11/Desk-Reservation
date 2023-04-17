@@ -78,8 +78,6 @@ export class ReservationComponent implements OnInit {
   getDeskReservations(): void {
     this.deskService.getReservations().subscribe(deskReservations => {
       this.deskReservationsList = deskReservations;
-      // console.log(this.deskReservationsList[0][1].tag);
-      // console.log(this.deskReservationsList[0][1].desk_type);
     })
   }
 

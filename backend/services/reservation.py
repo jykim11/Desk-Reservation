@@ -35,6 +35,15 @@ class ResService:
         reservation_entities = self._session.execute(stmt).all()
         return [(desk_reservation_entity, desk_entity) for desk_reservation_entity, desk_entity in reservation_entities]
 
+    def list_all_desk_reservations(self) -> list[(DeskReservation, Desk, User)]:
+        #self._permission.enforce(subject, 'reservation.listalldeskreservations', 'reservation/')
+        stmt = select(DeskReservationEntity, DeskEntity, UserEntity)\
+            .join(DeskEntity)\
+            .join(UserEntity)\
+            .order_by(DeskReservationEntity.date)
+        reservation_entities = self._session.execute(stmt).all()
+        return [(desk_reservation_entity, desk_entity, user_entity) for desk_reservation_entity, desk_entity, user_entity in reservation_entities]
+    
     def make_desk_unavailable(self, desk: Desk) -> Desk:
         #self._permission.enforce(subject, 'reservation.makedeskunavailable', 'reservation/')
         desk_entity = self._session.get(DeskEntity, desk.id)

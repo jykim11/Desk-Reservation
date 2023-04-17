@@ -39,6 +39,7 @@ import { ProfileEditorComponent } from './profile/profile-editor/profile-editor.
 import { ReservationComponent } from './reservation/reservation.component';
 import { MatTableModule } from '@angular/material/table';
 import { ReservationDialogComponent } from './reservation-dialog/reservation-dialog.component';
+import { AdminReservationComponent } from './admin-reservation/admin-reservation.component';
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { ReservationDialogComponent } from './reservation-dialog/reservation-dia
     ProfileEditorComponent,
     ReservationComponent,
     ReservationDialogComponent,
+    AdminReservationComponent,
   ],
   imports: [
     BrowserModule,
