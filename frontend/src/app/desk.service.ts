@@ -3,11 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, mergeMap, of } from 'rxjs';
 import { AuthenticationService } from './authentication.service';
 import { Desk, DeskReservation, DeskReservationTuple } from './models';
-// export interface Desk {
-//   id: number;
-//   name: string;
-//   available: boolean;
-// }
 
 @Injectable({
   providedIn: 'root'
@@ -33,5 +28,7 @@ export class DeskService {
 
   getReservations(): Observable<[[DeskReservation, Desk]]> {
     console.log(this.http.get<[[DeskReservation, Desk]]>('/api/reservation/desk_reservations'));
-    return this.http.get<[[DeskReservation, Desk]]>('/api/reservation/desk_reservations')};
+    return this.http.get<[[DeskReservation, Desk]]>('/api/reservation/desk_reservations')
+  };
+
 }

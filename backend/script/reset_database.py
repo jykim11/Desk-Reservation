@@ -84,7 +84,6 @@ with Session(engine) as session:
 with Session(engine) as session:
     from ..entities import DeskReservationEntity
     from .dev_data import desk_reservations
-<<<<<<< HEAD
     # to_entity = entities.DeskReservationEntity.from_model
     for reservation, desk, user in desk_reservations.pairs:
         entity = DeskReservationEntity.from_model(reservation)
@@ -92,13 +91,4 @@ with Session(engine) as session:
         entity.user = session.get(UserEntity, user.id)
         session.add(entity)
     session.execute(text(f'ALTER SEQUENCE {entities.DeskReservationEntity.__table__}_id_seq RESTART WITH {len(desk_reservations.models) + 1}'))
-=======
-    to_entity = entities.DeskReservationEntity.from_model
-    for reservation, desk, user in desk_reservations.pairs:
-        reservation = entities.DeskReservationEntity.from_model(reservation)
-        reservation.desk_id = session.get(DeskEntity, desk.id).id
-        reservation.user_id = session.get(UserEntity, user.id).id
-        session.add(reservation)
-    session.execute(text(f'ALTER SEQUENCE {entities.DeskReservationEntity.__table__}_id_seq RESTART WITH {len(desk_reservations.models) +1}'))
->>>>>>> stage
     session.commit()

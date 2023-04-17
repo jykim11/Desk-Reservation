@@ -15,14 +15,7 @@ models = [
 ]
 
 pairs = [
-<<<<<<< HEAD
     (mar12_1200a1, desks.a9, users.sol_student),
     (mar12_1200a2, desks.a10, users.sally_student),
     (mar15_1350a2, desks.a11, users.sol_student)
 ]
-=======
-    (mar12_1200a1, desks.a1, users.sol_student),
-    (mar12_1200a2, desks.a2, users.sally_student),
-    (mar15_1350a2, desks.a2, users.sol_student)
-]
->>>>>>> stage

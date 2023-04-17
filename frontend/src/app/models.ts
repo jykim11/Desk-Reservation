@@ -13,6 +13,10 @@ export interface DeskReservation {
     date: string;
 }
 
+export interface DeskReservationEntry {
+    date: string;
+}
+
 export interface DeskReservationTuple {
     item: [[DeskReservation, Desk]];
 }

@@ -2,8 +2,8 @@ import { Component, OnInit, Inject} from '@angular/core';
 import { Route } from '@angular/router';
 import { isAuthenticated } from '../gate/gate.guard';
 import { DeskService} from '../desk.service';
+import { DeskReservationService } from '../desk-reservation.service';
 import { Desk, DeskReservation, DeskReservationTuple } from '../models';
-// import { MatDatepickerModule } from '@angular/material/datepicker';
 import {FormBuilder, Validators} from '@angular/forms';
 import {MatDialog, MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -26,39 +26,40 @@ export class ReservationComponent implements OnInit {
   public static Route: Route = {
     path: 'reservation',
     component: ReservationComponent,
-    title: 'Reserve',
+    title: 'Reservation',
     canActivate: [isAuthenticated]
   }
 
-  
 
-  // Dummy desk array until backend can fetch database.
-  // public desk$: Observable<Desk[]>
   desk: Desk[] = [];
   deskReservationsList: [DeskReservation, Desk][] = [];
-  // For table display in reservation.html
-  displayedColumns: string[] = ['desk_tag', 'desk_type', 'included_resource', 'available','reserve'];
 
-  dipslayedColumnsReservations: string[] = ['desk_tag', 'desk_type', 'included_resource', 'available', 'date', 'cancel'];
+  resTime: Date = new Date();
+  displayedColumns: string[] = ['desk_tag', 'desk_type', 'included_resource','reserve'];
+  dipslayedColumnsReservations: string[] = ['desk_tag', 'desk_type', 'included_resource', 'date', 'cancel'];
 
-  animal: string = "";
-  name: string = "";
+  
 
   constructor(
-    private deskService: DeskService, private _formBuilder: FormBuilder, public dialog: MatDialog
+    private deskService: DeskService, private deskresService: DeskReservationService, private _formBuilder: FormBuilder, public dialog: MatDialog
   ) { 
     selectedDate: Date;
     selectedTime: Date;
   }
 
-  openDialog(): void {
+  openDialog(selectedDesk: Desk): void {
     const dialogRef = this.dialog.open(ReservationDialogComponent, {
-      data: {name: this.name, animal: this.animal},
+      data: {myDesk: selectedDesk},
     });
 
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
-      this.animal = result;
+      this.resTime = result;
+      console.log(this.resTime)
+      console.log(result)
+      
+      console.log('reached here')
+      this.reloadPage();
     });
   }
 
@@ -77,12 +78,26 @@ export class ReservationComponent implements OnInit {
   getDeskReservations(): void {
     this.deskService.getReservations().subscribe(deskReservations => {
       this.deskReservationsList = deskReservations;
-      console.log(this.deskReservationsList[0][1].tag);
-      console.log(this.deskReservationsList[0][1].desk_type);
-
-      
-
+      // console.log(this.deskReservationsList[0][1].tag);
+      // console.log(this.deskReservationsList[0][1].desk_type);
     })
+  }
+
+  cancel_reservation(deskReservationsListItem: [DeskReservation, Desk]): void {
+    this.deskresService.cancelDeskReservation(deskReservationsListItem[1], deskReservationsListItem[0]).subscribe();
+    console.log(deskReservationsListItem)
+    this.reloadPage();
+  }
+
+
+  formatDate(date: Date): string {
+    const isoString = date.toISOString();
+    const parts = isoString.split('T')[0].split('-');
+    return `${parts[0]}-${parts[1]}-${parts[2]}`;
+  }
+
+  reloadPage() {
+    location.reload();
   }
 
 }

@@ -36,13 +36,14 @@ def list_available_desks(desk_res: ResService = Depends()):
 def reserve_desk(desk: Desk, reservation: DeskReservation, subject : User = Depends(registered_user), desk_res: ResService = Depends()):
     try:
         return desk_res.create_desk_reservation(desk, subject, reservation)
-    except UserPermissionError as e:
-        raise HTTPException(status_code=403, detail=str(e))
+    except Exception as e:
+        print(str(e))
+        raise HTTPException(status_code=422, detail=str(e))  
 
 # unreserve desk
 @api.post("/unreserve", tags=['Reservation'])
 def unreserve_desk(desk: Desk, reservation: DeskReservation, subject : User = Depends(registered_user), desk_res: ResService = Depends()):
     try:
         return desk_res.remove_desk_reservation(desk, subject, reservation)
-    except UserPermissionError as e:
+    except Exception as e:
         raise HTTPException(status_code=403, detail=str(e))
