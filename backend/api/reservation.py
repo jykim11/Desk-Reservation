@@ -10,9 +10,9 @@ from .authentication import registered_user
 api = APIRouter(prefix="/api/reservation")
 
 @api.get("", tags=['Reservation'])
-def list_desks(desk_res: ResService = Depends()):
+def list_desks(subject : User = Depends(registered_user), desk_res: ResService = Depends()):
     try:
-        return desk_res.list_desks()
+        return desk_res.list_desks(subject)
     except UserPermissionError as e:
         raise HTTPException(status_code=403, detail=str(e))
 
@@ -52,6 +52,6 @@ def unreserve_desk(desk: Desk, reservation: DeskReservation, subject : User = De
 @api.get("/admin/all", tags=['Reservation'])
 def list_all_desk_reservations(subject : User = Depends(registered_user), desk_res: ResService = Depends()):
     try:
-        return desk_res.list_all_desk_reservations()
+        return desk_res.list_all_desk_reservations(subject)
     except UserPermissionError as e:
         raise HTTPException(status_code=403, detail=str(e))

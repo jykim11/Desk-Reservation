@@ -14,8 +14,8 @@ class ResService:
 
     #verified services
 
-    def list_desks(self) -> list[Desk]:
-        #self._permission.enforce(subject, 'reservation.listdesks', 'reservation/')
+    def list_desks(self, subject: User) -> list[Desk]:
+        self._permission.enforce(subject, '*', 'admin/')
         stmt = select(DeskEntity).order_by(DeskEntity.id)
         desk_entities = self._session.execute(stmt).scalars()
         return [desk_entity.to_model() for desk_entity in desk_entities]
@@ -35,8 +35,8 @@ class ResService:
         reservation_entities = self._session.execute(stmt).all()
         return [(desk_reservation_entity, desk_entity) for desk_reservation_entity, desk_entity in reservation_entities]
 
-    def list_all_desk_reservations(self) -> list[(DeskReservation, Desk, User)]:
-        #self._permission.enforce(subject, 'reservation.listalldeskreservations', 'reservation/')
+    def list_all_desk_reservations(self, subject: User) -> list[(DeskReservation, Desk, User)]:
+        self._permission.enforce(subject, '*', 'admin/')
         stmt = select(DeskReservationEntity, DeskEntity, UserEntity)\
             .join(DeskEntity)\
             .join(UserEntity)\

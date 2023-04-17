@@ -4,10 +4,7 @@ import { isAuthenticated } from '../gate/gate.guard';
 import { DeskService} from '../desk.service';
 import { DeskReservationService } from '../desk-reservation.service';
 import { Desk, DeskReservation, User } from '../models';
-import {FormBuilder, Validators} from '@angular/forms';
-import {MatDialog, MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import { ReservationDialogComponent } from '../reservation-dialog/reservation-dialog.component';
+import { permissionGuard } from '../permission.guard';
 
 @Component({
   selector: 'app-admin-reservation',
@@ -19,7 +16,7 @@ export class AdminReservationComponent implements OnInit {
       path: 'admin-reservation',
       component: AdminReservationComponent,
       title: 'Reservation Administration',
-      canActivate: [isAuthenticated]
+      canActivate: [permissionGuard('*', 'admin/')]
     }
 
     displayedColumns: string[] = ['pid', 'email', 'time', 'desk_tag', 'desk_type', 'included_resource','remove'];
