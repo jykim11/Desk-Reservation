@@ -4,7 +4,7 @@ from sqlalchemy import Integer, String, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import Self
 from .entity_base import EntityBase
-from .desk_resource_entity import desk_resource_table
+from .desk_reservation_entity import DeskReservationEntity
 from ..models import Desk
 
 class DeskEntity(EntityBase):
@@ -16,7 +16,7 @@ class DeskEntity(EntityBase):
     included_resource: Mapped[str] = mapped_column(String(32), unique=False, index=True)
     available: Mapped[bool] = mapped_column(Boolean, default=True)
 
-    resources: Mapped[list['ResourceEntity']] = relationship(secondary=desk_resource_table, back_populates='desks')
+    desk_reservations: Mapped[list['DeskReservationEntity']] = relationship(back_populates='desk')
 
     @classmethod
     def from_model(cls, model: Desk) -> Self:

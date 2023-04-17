@@ -2,12 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, mergeMap, of } from 'rxjs';
 import { AuthenticationService } from './authentication.service';
-
-export interface Desk {
-  id: number;
-  name: string;
-  available: boolean;
-}
+import { Desk, DeskReservation, DeskReservationTuple } from './models';
+// export interface Desk {
+//   id: number;
+//   name: string;
+//   available: boolean;
+// }
 
 @Injectable({
   providedIn: 'root'
@@ -28,15 +28,10 @@ export class DeskService {
    */
 
   getDesk(): Observable<Desk[]> {
-    // this.desk$ = this.auth.isAuthenticated$.pipe(
-    //   mergeMap(isAuthenticated => {
-    //     if (isAuthenticated) {
-    //       return this.http.get<Desk>('/api/reservation');
-    //     } else {
-    //       return of(undefined);
-    //     }
-    //   })
-    // );
-    return this.http.get<Desk[]>('/api/reservation');
+    return this.http.get<Desk[]>('/api/reservation/available');
   }
+
+  getReservations(): Observable<[[DeskReservation, Desk]]> {
+    console.log(this.http.get<[[DeskReservation, Desk]]>('/api/reservation/desk_reservations'));
+    return this.http.get<[[DeskReservation, Desk]]>('/api/reservation/desk_reservations')};
 }

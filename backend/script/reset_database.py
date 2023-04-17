@@ -3,6 +3,7 @@
 import sys
 from sqlalchemy import text
 from sqlalchemy.orm import Session
+
 from ..database import engine
 from ..env import getenv
 from .. import entities
@@ -19,9 +20,16 @@ if getenv("MODE") != "development":
 
 
 # Reset Tables
-entities.EntityBase.metadata.drop_all(engine)
-entities.EntityBase.metadata.create_all(engine)
+# entities.EntityBase.metadata.drop_all(engine)
+# Reset Tables
+# with engine.connect() as conn:
+#     # Drop all tables with CASCADE
+#     conn.execute(text(f'DROP TABLE IF EXISTS desk_desk_resource, desk_reservation, permission, user_role, role, user_entity, desk CASCADE'))
 
+entities.EntityBase.metadata.drop_all(engine)
+
+# Create Tables
+entities.EntityBase.metadata.create_all(engine)
 
 # Insert Dev Data from `script.dev_data`
 
@@ -62,35 +70,29 @@ with Session(engine) as session:
     session.execute(text(f'ALTER SEQUENCE permission_id_seq RESTART WITH {len(permissions.pairs) + 1}'))
     session.commit()
 
-# Add Desks
+#Add Desks
 with Session(engine) as session:
+    from ..entities import DeskEntity
     from .dev_data import desks
     to_entity = entities.DeskEntity.from_model
     session.add_all([to_entity(model) for model in desks.models])
     session.execute(text(f'ALTER SEQUENCE {entities.DeskEntity.__table__}_id_seq RESTART WITH {len(desks.models) +1}'))
     session.commit()
 
-# Add Resources
-with Session(engine) as session:
-    from .dev_data import resources
-    to_entity = entities.ResourceEntity.from_model
-    session.add_all([to_entity(model) for model in desks.models])
-    session.execute(text(f'ALTER SEQUENCE {entities.ResourceEntity.__table__}_id_seq RESTART WITH {len(resources.models) +1}'))
-    session.commit()
-
-# Add Resources to Desks
-with Session(engine) as session:
-    from ..entities import DeskEntity, ResourceEntity
-    from .dev_data import desk_resource
-    for desk, resource in desk_resource.pairs:
-        desk_entity = session.get(DeskEntity, desk.id)
-        resource_entity = session.get(ResourceEntity, resource.id)
-        desk_entity.resources.append(resource_entity)
-    session.commit()
 
 # Add Reservations
 with Session(engine) as session:
+    from ..entities import DeskReservationEntity
     from .dev_data import desk_reservations
+<<<<<<< HEAD
+    # to_entity = entities.DeskReservationEntity.from_model
+    for reservation, desk, user in desk_reservations.pairs:
+        entity = DeskReservationEntity.from_model(reservation)
+        entity.desk = session.get(DeskEntity, desk.id)
+        entity.user = session.get(UserEntity, user.id)
+        session.add(entity)
+    session.execute(text(f'ALTER SEQUENCE {entities.DeskReservationEntity.__table__}_id_seq RESTART WITH {len(desk_reservations.models) + 1}'))
+=======
     to_entity = entities.DeskReservationEntity.from_model
     for reservation, desk, user in desk_reservations.pairs:
         reservation = entities.DeskReservationEntity.from_model(reservation)
@@ -98,4 +100,5 @@ with Session(engine) as session:
         reservation.user_id = session.get(UserEntity, user.id).id
         session.add(reservation)
     session.execute(text(f'ALTER SEQUENCE {entities.DeskReservationEntity.__table__}_id_seq RESTART WITH {len(desk_reservations.models) +1}'))
+>>>>>>> stage
     session.commit()

@@ -5,5 +5,5 @@ from datetime import datetime
 
 class DeskReservation(BaseModel):
     id: int | None = None
-    date: datetime
+    date: datetime | None | str = None
     
