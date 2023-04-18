@@ -22,5 +22,9 @@ export class DeskReservationService {
     return this.http.post<DeskReservation>('/api/reservation/unreserve', {desk, reservation});
   }
 
+  getDeskReservations(desk: Desk): Observable<DeskReservation[]> {
+    return this.http.get<DeskReservation[]>(`/api/reservation/${desk.id}`);
+  }
+
  
 }

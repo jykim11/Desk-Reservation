@@ -5,6 +5,7 @@ from ..database import db_session
 from ..models import User, Desk, Paginated, PaginationParams, DeskReservation
 from ..entities import UserEntity, DeskEntity, DeskReservationEntity
 from .permission import PermissionService
+from datetime import datetime
 
 class ResService:
     def __init__(self, session: Session = Depends(db_session), permission: PermissionService = Depends()):
@@ -113,7 +114,7 @@ class ResService:
         Returns:
             DeskReservation: The created desk reservation entity.
         """
-        self.make_desk_unavailable(desk)
+        # self.make_desk_unavailable(desk)
         reservation_entity = DeskReservationEntity.from_model(reservation)
         reservation_entity.user_id = user.id
         reservation_entity.desk_id = desk.id
@@ -132,7 +133,7 @@ class ResService:
         Returns:
             Desk: The updated desk entity.
         """
-        self.make_desk_available(desk)
+        # self.make_desk_available(desk)
         reservation_entity = self._session.get(DeskReservationEntity, reservation.id)
         self._session.delete(reservation_entity)
         self._session.commit()
@@ -175,3 +176,19 @@ class ResService:
         self._session.delete(desk_entity)
         self._session.commit()
         return desk_entity.to_model()   
+    
+    def list_reservations_by_desk(self, desk_id: int) -> list[DeskReservation]:
+        """List reservations by desk.
+        
+        Args:
+            desk_id: The ID of the desk whose reservations to retrieve.
+            
+        Returns:
+            list[DeskReservation]: A list of desk reservation entities.
+        """
+        #self._permission.enforce(subject, 'reservation.reservationfilter', 'reservation/')
+        stmt = select(DeskReservationEntity)\
+            .where(DeskReservationEntity.desk_id == desk_id)
+        reservations = self._session.execute(stmt).scalars()
+        return [reservation.to_model() for reservation in reservations]
+    
