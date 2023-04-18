@@ -45,7 +45,7 @@ export class AdminReservationComponent implements OnInit {
     path: 'admin-reservation',
     component: AdminReservationComponent,
     title: 'Reservation Administration',
-    canActivate: [permissionGuard('*', 'admin/')]
+    canActivate: [permissionGuard('admin/', '*')]
   }
 
   selectedType!: string;

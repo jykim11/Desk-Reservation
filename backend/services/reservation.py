@@ -24,7 +24,7 @@ class ResService:
         Raises:
             PermissionError: If the subject does not have permission to admin access.
         """
-        self._permission.enforce(subject, '*', 'admin/')
+        self._permission.enforce(subject, 'admin/', '*')
         stmt = select(DeskEntity).order_by(DeskEntity.id)
         desk_entities = self._session.execute(stmt).scalars()
         return [desk_entity.to_model() for desk_entity in desk_entities]
@@ -67,7 +67,7 @@ class ResService:
         Raises:
             PermissionError: If the subject does not have permission to admin access.
         """
-        self._permission.enforce(subject, '*', 'admin/')
+        self._permission.enforce(subject, 'admin/', '*')
         stmt = select(DeskReservationEntity, DeskEntity, UserEntity)\
             .join(DeskEntity)\
             .join(UserEntity)\
@@ -153,7 +153,7 @@ class ResService:
         Raises:
             PermissionError: If the subject does not have permission to admin access.
         """
-        self._permission.enforce(subject, '*', 'admin/')
+        self._permission.enforce(subject, 'admin/', '*')
         desk_entity = DeskEntity.from_model(desk)
         self._session.add(desk_entity)
         self._session.commit()
@@ -171,7 +171,7 @@ class ResService:
         Raises:
             PermissionError: If the subject does not have permission to admin access.
         """
-        self._permission.enforce(subject, '*', 'admin/')
+        self._permission.enforce(subject, 'admin/', '*')
         desk_entity = self._session.get(DeskEntity, desk.id)
         self._session.delete(desk_entity)
         self._session.commit()
