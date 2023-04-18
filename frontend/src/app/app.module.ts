@@ -40,6 +40,7 @@ import { ReservationComponent } from './reservation/reservation.component';
 import { MatTableModule } from '@angular/material/table';
 import { ReservationDialogComponent } from './reservation-dialog/reservation-dialog.component';
 import { AdminReservationComponent } from './admin-reservation/admin-reservation.component';
+import {MatSelectModule} from '@angular/material/select';
 
 @NgModule({
   declarations: [
@@ -76,6 +77,7 @@ import { AdminReservationComponent } from './admin-reservation/admin-reservation
     MatToolbarModule,
     MatDatepickerModule, 
     MatNativeDateModule,
+    MatSelectModule,
     FormsModule,
     MatTableModule,
     JwtModule.forRoot({

@@ -3,10 +3,9 @@ import { Route } from '@angular/router';
 import { isAuthenticated } from '../gate/gate.guard';
 import { DeskService} from '../desk.service';
 import { DeskReservationService } from '../desk-reservation.service';
-import { Desk, DeskReservation, DeskReservationTuple } from '../models';
-import {FormBuilder, Validators} from '@angular/forms';
-import {MatDialog, MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {MatFormFieldModule} from '@angular/material/form-field';
+import { Desk, DeskReservation} from '../models';
+import {FormBuilder} from '@angular/forms';
+import {MatDialog} from '@angular/material/dialog';
 import { ReservationDialogComponent } from '../reservation-dialog/reservation-dialog.component';
 
 

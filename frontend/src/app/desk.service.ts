@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, mergeMap, of } from 'rxjs';
 import { AuthenticationService } from './authentication.service';
-import { Desk, DeskReservation, User } from './models';
+import { Desk, DeskEntry, DeskReservation, User } from './models';
 
 @Injectable({
   providedIn: 'root'
@@ -36,6 +36,14 @@ export class DeskService {
 
   getAllDeskReservations(): Observable<[[DeskReservation, Desk, User]]> {
     return this.http.get<[[DeskReservation, Desk, User]]>('/api/reservation/admin/all')
+  }
+
+  createDesk(desk: DeskEntry): Observable<Desk> {
+    return this.http.post<Desk>('/api/reservation/admin/create_desk', desk);
+  }
+
+  removeDesk(desk: Desk): Observable<Desk> {
+    return this.http.post<Desk>('/api/reservation/admin/remove_desk', desk);
   }
 
 }

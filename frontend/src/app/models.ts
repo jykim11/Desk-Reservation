@@ -6,6 +6,14 @@ export interface Desk {
     available: boolean;
   }
 
+export interface DeskEntry {
+    tag: string;
+    desk_type: string;
+    included_resource: string;
+    available: boolean;
+}
+
+
 export interface DeskReservation {
     id: number;
     desk_id: number;
@@ -29,3 +37,11 @@ export interface User {
 export interface DeskReservationTuple {
     item: [[DeskReservation, Desk]];
 }
+
+export interface Desk {
+    id: number;
+    tag: string;
+    desk_type: string;
+    included_resource: string;
+    available: boolean;
+  }

@@ -55,3 +55,20 @@ def list_all_desk_reservations(subject : User = Depends(registered_user), desk_r
         return desk_res.list_all_desk_reservations(subject)
     except UserPermissionError as e:
         raise HTTPException(status_code=403, detail=str(e))
+    
+# Create Desk
+@api.post("/admin/create_desk", tags=['Reservation'])
+def create_desk(desk: Desk, subject : User = Depends(registered_user), desk_res: ResService = Depends()):
+    try:
+        return desk_res.create_desk(desk, subject)
+    except Exception as e:
+        raise HTTPException(status_code=403, detail=str(e))
+    
+
+# Remove Desk
+@api.post("/admin/remove_desk", tags=['Reservation'])
+def remove_desk(desk: Desk, subject : User = Depends(registered_user), desk_res: ResService = Depends()):
+    try:
+        return desk_res.remove_desk(desk, subject)
+    except Exception as e:
+        raise HTTPException(status_code=403, detail=str(e))

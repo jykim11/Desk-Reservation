@@ -1,6 +1,5 @@
-import { Component, Inject, NgModule } from '@angular/core';
-import { MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { FormsModule } from '@angular/forms';
+import { Component, Inject} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DeskReservationService } from '../desk-reservation.service';
 import { Desk } from '../models';
 @Component({
