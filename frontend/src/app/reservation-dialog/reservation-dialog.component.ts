@@ -47,12 +47,17 @@ export class ReservationDialogComponent {
   filterDates = (d: Date | null): boolean => {
     const date = (d || new Date());
     const day = (d || new Date()).getDay();
-    return !(this.reservedDates.some((resDate) => resDate.toISOString() === date.toISOString()) || day == 0 || day == 6);
+    return !(this.reservedDates.some((resDate) => resDate.toDateString() == date.toDateString()) || day == 0 || day == 6);
   }
 
+  formatDate(date: Date): string {
+    return date.toDateString();
+  }
+  /*
   formatDate(date: Date): string {
     const isoString = date.toISOString();
     const parts = isoString.split('T')[0].split('-');
     return `${parts[0]}-${parts[1]}-${parts[2]}`;
   }
+  */
 }
