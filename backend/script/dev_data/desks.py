@@ -10,9 +10,9 @@ a5 = Desk(id=5, tag='OSD1', desk_type='Open Study Desk', included_resource='', a
 a6 = Desk(id=6, tag='OSD2', desk_type='Enclosed Study Desk', included_resource='', available=True)
 a7 = Desk(id=7, tag='OSD3', desk_type='Enclosed Study Office', included_resource='', available=True)
 a8 = Desk(id=8, tag='CSC1', desk_type='Closed Study Carrel', included_resource='', available=True)
-a9 = Desk(id=9, tag='CSC2', desk_type='Closed Study Carrel', included_resource='', available=False)
-a10 = Desk(id=10, tag='CSC3', desk_type='Closed Study Carrel', included_resource='', available=False)
-a11 = Desk(id=11, tag='CSC4', desk_type='Closed Study Carrel', included_resource='', available=False)
+a9 = Desk(id=9, tag='CSC2', desk_type='Closed Study Carrel', included_resource='', available=True)
+a10 = Desk(id=10, tag='CSC3', desk_type='Closed Study Carrel', included_resource='', available=True)
+a11 = Desk(id=11, tag='CSC4', desk_type='Closed Study Carrel', included_resource='', available=True)
 
 
 
