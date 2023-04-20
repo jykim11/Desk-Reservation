@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Date, ForeignKey, UniqueConstraint
+from sqlalchemy import Integer, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import Self
 from .entity_base import EntityBase
@@ -11,7 +11,7 @@ class DeskReservationEntity(EntityBase):
     __tablename__ = "desk_reservation"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    date: Mapped[datetime] = mapped_column(Date, unique=False)
+    date: Mapped[datetime] = mapped_column(DateTime, unique=False)
 
     desk_id: Mapped[int] = mapped_column(ForeignKey('desk.id'), nullable=True)
     desk: Mapped['DeskEntity'] = relationship(back_populates='desk_reservations')

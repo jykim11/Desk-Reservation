@@ -46,11 +46,12 @@ class ResService:
             user: The user whose reservations to retrieve.
 
         Returns:
-            list[(DeskReservation, Desk)]: A list of tuples, each containing a desk reservation entity and its associated desk entity.
+            list[(DeskReservation, Desk)]: A list of tuples, each containing a desk reservation entity and its associated desk entity from from the current date onwards.
         """
         stmt = select(DeskReservationEntity, DeskEntity)\
             .join(DeskEntity)\
             .where(DeskReservationEntity.user_id == user.id)\
+            .where(DeskReservationEntity.date >= datetime.now().date()) \
             .order_by(DeskReservationEntity.date)
         reservation_entities = self._session.execute(stmt).all()
         return [(desk_reservation_entity, desk_entity) for desk_reservation_entity, desk_entity in reservation_entities]

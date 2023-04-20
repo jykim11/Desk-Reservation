@@ -66,7 +66,7 @@ def test_list_desk_reservations_by_user(test_session: Session):
     assert reservation_entity.id is not None
 
     get_reservation_entity = test_session.get(DeskReservationEntity, reservation_entity.id)
-    assert get_reservation_entity.date == reservation.date.date()
+    assert get_reservation_entity.date == reservation.date
 
 
 # Test making the desk unavailable to reserve.
@@ -173,9 +173,6 @@ def test_list_desk_reservations_by_desk(test_session: Session):
     reservation_service.create_desk_reservation(desk, student, reservation3)
 
     desk_reservations = reservation_service.list_reservations_by_desk(desk.id)
-    reservation.date = str(reservation.date).split(' ')[0]
-    reservation2.date = str(reservation2.date).split(' ')[0]
-    reservation3.date = str(reservation3.date).split(' ')[0]
     assert desk_reservations == [reservation, reservation2, reservation3]
 
 # Test that listing desk reservations only returns the reservations for that desk.
@@ -203,6 +200,24 @@ def test_reservation_by_desk_multiple_desk(test_session: Session):
 
     
     desk_reservations = reservation_service.list_reservations_by_desk(desk.id)
-    reservation.date = str(reservation.date).split(' ')[0]
-    reservation2.date = str(reservation2.date).split(' ')[0]
     assert desk_reservations == [reservation, reservation2]
+
+# Test the list of reservations by user to not include past dates.
+def test_list_reservations_by_user_past_dates(test_session: Session):
+    student = User(id=1, pid=123456789, onyen='student', email='student@unc.edu')
+    student_entity = UserEntity.from_model(student)
+    test_session.add(student_entity)
+
+    desk = Desk(id=1, tag='AA1', desk_type='Computer Desk', included_resource='Pro Display XDR w/ Mac Pro', available=True)
+    desk_entity = DeskEntity.from_model(desk)
+    test_session.add(desk_entity)
+
+    reservation = DeskReservation(id=1, date=datetime(2023, 4, 17))
+    reservation2 = DeskReservation(id=2, date=datetime(2023, 5, 20))
+    reservation_service = ResService(test_session)
+
+    reservation_service.create_desk_reservation(desk, student, reservation)
+    reservation_service.create_desk_reservation(desk, student, reservation2)
+
+    reservations = reservation_service.list_desk_reservations_by_user(student)
+    assert len(reservations) == 1

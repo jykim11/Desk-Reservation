@@ -37,7 +37,7 @@ export class ReservationDialogComponent {
 
   onConfirmClick(): void {
     this.dialogRef.close(this.chosenDateTime);
-
+    
     this.deskresService.createDeskReservation(this.chosenDesk, {date: this.formatDate(this.chosenDateTime)}).subscribe();
     console.log(this.chosenDateTime);
     console.log(this.chosenDesk)

@@ -28,7 +28,7 @@
 
                     <ng-container matColumnDef="date">
                         <th mat-header-cell *matHeaderCellDef> Reservation Date </th>
-                        <td mat-cell *matCellDef="let deskReservationsList"> {{ deskReservationsList[0].date }} </td>
+                        <td mat-cell *matCellDef="let deskReservationsList"> {{ deskReservationsList[0].date | date:'MMM d, y' }} </td>
                     </ng-container>
 
                     <ng-container matColumnDef="cancel">
