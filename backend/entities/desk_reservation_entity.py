@@ -31,5 +31,5 @@ class DeskReservationEntity(EntityBase):
         print(self.date)
         return DeskReservation(
             id=self.id,
-            date= str(self.date),
+            date= self.date,
         )

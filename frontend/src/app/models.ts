@@ -18,11 +18,11 @@ export interface DeskReservation {
     id: number;
     desk_id: number;
     user_id: number;
-    date: string;
+    date: Date;
 }
 
 export interface DeskReservationEntry {
-    date: string;
+    date: Date;
 }
 
 export interface User {

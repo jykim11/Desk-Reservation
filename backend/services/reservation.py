@@ -189,7 +189,8 @@ class ResService:
         """
         #self._permission.enforce(subject, 'reservation.reservationfilter', 'reservation/')
         stmt = select(DeskReservationEntity)\
-            .where(DeskReservationEntity.desk_id == desk_id)
+            .where(DeskReservationEntity.desk_id == desk_id) \
+            .where(DeskReservationEntity.date >= datetime.now().date())
         reservations = self._session.execute(stmt).scalars()
         return [reservation.to_model() for reservation in reservations]
     

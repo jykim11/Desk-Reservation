@@ -2,6 +2,8 @@ import { Component, Inject} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DeskReservationService } from '../desk-reservation.service';
 import { Desk } from '../models';
+import { FormControl } from '@angular/forms';
+
 @Component({
   selector: 'app-reservation-dialog',
   templateUrl: './reservation-dialog.component.html',
@@ -10,11 +12,14 @@ import { Desk } from '../models';
 
 export class ReservationDialogComponent {
 
-  chosenDateTime!: Date;
+  chosenDate!: Date;
+  chosenTime!: String;
   chosenDesk: Desk;
   minDate: Date;
   maxDate: Date;
   reservedDates: Date[] = [];
+  reservedTimes: Date[] = [];
+  times = ['9:00 A.M.', '10:00 A.M.', '11:00 A.M', '12:00 P.M.', '1:00 P.M.', '2:00 P.M.', '3:00 P.M.', '4:00 P.M.'];
   
   constructor(
     private deskresService: DeskReservationService,
@@ -36,28 +41,34 @@ export class ReservationDialogComponent {
   }
 
   onConfirmClick(): void {
-    this.dialogRef.close(this.chosenDateTime);
-    
-    this.deskresService.createDeskReservation(this.chosenDesk, {date: this.formatDate(this.chosenDateTime)}).subscribe();
-    console.log(this.chosenDateTime);
-    console.log(this.chosenDesk)
-    
+    this.dialogRef.close();
+    if (this.chosenTime.includes('P.M.')) {
+      this.chosenTime = this.chosenTime.split(':')[0]
+      if(this.chosenTime != '12') {
+        this.chosenTime = String(Number(this.chosenTime) + 12)
+      }
+    } else {
+      this.chosenTime = this.chosenTime.split(':')[0];
+    }
+    let chosenDateTime = this.chosenDate;
+    chosenDateTime.setHours(Number(this.chosenTime));
+    chosenDateTime.setTime(chosenDateTime.getTime() - chosenDateTime.getTimezoneOffset()*1000*60);
+    this.deskresService.createDeskReservation(this.chosenDesk, {date: chosenDateTime}).subscribe();    
   }
 
   filterDates = (d: Date | null): boolean => {
     const date = (d || new Date());
     const day = (d || new Date()).getDay();
-    return !(this.reservedDates.some((resDate) => resDate.toDateString() == date.toDateString()) || day == 0 || day == 6);
+    if(day == 0 || day == 6) { return false; }
+    else if (this.reservedDates.some((resDate) => resDate.toDateString() == date.toDateString())) { 
+      let counter = 0;
+      this.reservedDates.forEach((resDate) => { if (resDate.toDateString() == date.toDateString()) { counter++; }})
+      if (counter == 8) { return false; }
+    }
+    return true
   }
-
-  formatDate(date: Date): string {
-    return date.toDateString();
+  
+  isReserved(date: Date, time: string): boolean {
+    return this.reservedDates.some((resDate) => resDate.toDateString == date.toDateString && resDate.toTimeString().includes(time.split(':')[0]))
   }
-  /*
-  formatDate(date: Date): string {
-    const isoString = date.toISOString();
-    const parts = isoString.split('T')[0].split('-');
-    return `${parts[0]}-${parts[1]}-${parts[2]}`;
-  }
-  */
 }
