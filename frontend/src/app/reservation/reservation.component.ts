@@ -1,11 +1,11 @@
-import { Component, OnInit, Inject} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Route } from '@angular/router';
 import { isAuthenticated } from '../gate/gate.guard';
-import { DeskService} from '../desk.service';
+import { DeskService } from '../desk.service';
 import { DeskReservationService } from '../desk-reservation.service';
-import { Desk, DeskReservation} from '../models';
-import {FormBuilder} from '@angular/forms';
-import {MatDialog} from '@angular/material/dialog';
+import { Desk, DeskReservation } from '../models';
+import { FormBuilder } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { ReservationDialogComponent } from '../reservation-dialog/reservation-dialog.component';
 
 
@@ -34,21 +34,21 @@ export class ReservationComponent implements OnInit {
   deskReservationsList: [DeskReservation, Desk][] = [];
 
   resTime: Date = new Date();
-  displayedColumns: string[] = ['desk_tag', 'desk_type', 'included_resource','reserve'];
+  displayedColumns: string[] = ['desk_tag', 'desk_type', 'included_resource', 'reserve'];
   dipslayedColumnsReservations: string[] = ['desk_tag', 'desk_type', 'included_resource', 'date', 'cancel'];
 
-  
+
 
   constructor(
-    private deskService: DeskService, private deskresService: DeskReservationService, private _formBuilder: FormBuilder, public dialog: MatDialog
-  ) { 
+    private deskService: DeskService, private deskReservationService: DeskReservationService, private _formBuilder: FormBuilder, public dialog: MatDialog
+  ) {
     selectedDate: Date;
     selectedTime: Date;
   }
 
   openDialog(selectedDesk: Desk): void {
     const dialogRef = this.dialog.open(ReservationDialogComponent, {
-      data: {myDesk: selectedDesk},
+      data: { myDesk: selectedDesk },
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -56,32 +56,46 @@ export class ReservationComponent implements OnInit {
       this.resTime = result;
       console.log(this.resTime)
       console.log(result)
-      
+
       console.log('reached here')
       this.reloadPage();
     });
   }
 
   ngOnInit(): void {
-    this.getDesk();
-    this.getDeskReservations();
+    this.getAvailableDesks();
+    this.getDeskReservationsByUser();
   }
 
-  getDesk(): void {
-    this.deskService.getDesk().subscribe(desks => {
+  /**
+   * Retrieve all desks that are available.
+   * 
+   */
+  getAvailableDesks(): void {
+    this.deskService.getAvailableDesks().subscribe(desks => {
       this.desk = desks;
       console.log(this.desk)
     })
   }
 
-  getDeskReservations(): void {
-    this.deskService.getReservations().subscribe(deskReservations => {
+
+  /**
+   * Retrieve the list of desk reservations by User.
+   * 
+   */
+  getDeskReservationsByUser(): void {
+    this.deskReservationService.getDeskReservationsByUser().subscribe(deskReservations => {
       this.deskReservationsList = deskReservations;
     })
   }
 
-  cancel_reservation(deskReservationsListItem: [DeskReservation, Desk]): void {
-    this.deskresService.cancelDeskReservation(deskReservationsListItem[1], deskReservationsListItem[0]).subscribe();
+
+  /**
+   * Cancel/Unreserve a Reserved a desk.
+   * 
+   */
+  removeDeskReservation(deskReservationsListItem: [DeskReservation, Desk]): void {
+    this.deskReservationService.removeDeskReservation(deskReservationsListItem[1], deskReservationsListItem[0]).subscribe();
     console.log(deskReservationsListItem)
     this.reloadPage();
   }

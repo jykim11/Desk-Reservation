@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Route } from '@angular/router';
 import { DeskService } from '../desk.service';
 import { DeskReservationService } from '../desk-reservation.service';
@@ -64,23 +64,42 @@ export class AdminReservationComponent implements OnInit {
   allDeskReservationsList: [DeskReservation, Desk, User][] = [];
   allDesks: Desk[] = [];
   constructor(
-    private deskService: DeskService, private deskresService: DeskReservationService,
+    private deskService: DeskService, private deskReservationService: DeskReservationService,
   ) { }
 
   ngOnInit(): void {
-    this.getAllReservations();
+    this.getAllDeskReservations();
     this.getAllDesks();
   }
 
-  getAllReservations(): void {
-    this.deskService.getAllDeskReservations().subscribe(
-      deskReservations => {
-        this.allDeskReservationsList = deskReservations;
-        console.log(this.allDeskReservationsList[0][0].date)
-      }
-    )
+  /**
+   * Create a new desk in the database.
+   * Only available to Admin or users who have permission.
+   * 
+   */
+  createDesk() {
+    if (this.newDeskForm.tag === '' || this.newDeskForm.desk_type === '' || this.newDeskForm.available === null) {
+      return;
+    }
+    this.deskService.createDesk(this.newDeskForm).subscribe();
+    this.reloadPage();
   }
 
+
+  /**
+   * Remove a desk in the database.
+   * Only available to Admin or users who have permission.
+   */
+  removeDesk(desk: Desk) {
+    this.deskService.removeDesk(desk).subscribe();
+    this.reloadPage();
+  }
+
+
+  /**
+   * Retrieve all desks that are in the database.
+   * 
+   */
   getAllDesks(): void {
     this.deskService.getAllDesks().subscribe(
       desks => {
@@ -90,24 +109,32 @@ export class AdminReservationComponent implements OnInit {
     )
   }
 
-  newDeskCreation() {
-    if (this.newDeskForm.tag === '' || this.newDeskForm.desk_type === '' || this.newDeskForm.available === null) {
-      return;
-    }
-    this.deskService.createDesk(this.newDeskForm).subscribe();
-    this.reloadPage();
+
+  /**
+   * FOR ADMIN:
+   * Retrieve all desk reservations for admin view.
+   * 
+   */
+  getAllDeskReservations(): void {
+    this.deskReservationService.getAllDeskReservations().subscribe(
+      deskReservations => {
+        this.allDeskReservationsList = deskReservations;
+        console.log(this.allDeskReservationsList[0][0].date)
+      }
+    )
   }
 
-  removeDesk(desk: Desk) {
-    this.deskService.removeDesk(desk).subscribe();
-    this.reloadPage();
-  }
 
-  cancel_reservation(deskReservationsListItem: [DeskReservation, Desk, User]): void {
-    this.deskresService.cancelDeskReservation(deskReservationsListItem[1], deskReservationsListItem[0]).subscribe();
+  /**
+   * Cancel/Unreserve a Reserved a desk.
+   *
+   */
+  removeDeskReservation(deskReservationsListItem: [DeskReservation, Desk, User]): void {
+    this.deskReservationService.removeDeskReservation(deskReservationsListItem[1], deskReservationsListItem[0]).subscribe();
     console.log(deskReservationsListItem)
     this.reloadPage();
   }
+
 
   reloadPage() {
     location.reload();

@@ -70,7 +70,7 @@ with Session(engine) as session:
     session.execute(text(f'ALTER SEQUENCE permission_id_seq RESTART WITH {len(permissions.pairs) + 1}'))
     session.commit()
 
-#Add Desks
+# Add Desks
 with Session(engine) as session:
     from ..entities import DeskEntity
     from .dev_data import desks
@@ -84,7 +84,7 @@ with Session(engine) as session:
 with Session(engine) as session:
     from ..entities import DeskReservationEntity
     from .dev_data import desk_reservations
-    # to_entity = entities.DeskReservationEntity.from_model
+    
     for reservation, desk, user in desk_reservations.pairs:
         entity = DeskReservationEntity.from_model(reservation)
         entity.desk = session.get(DeskEntity, desk.id)

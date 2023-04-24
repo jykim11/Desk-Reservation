@@ -1,4 +1,5 @@
 from .user import UserService
 from .permission import PermissionService, UserPermissionError
 from .role import RoleService
-from .reservation import ResService
+from .desk_reservation import DeskReservationService
+from .desk import DeskService

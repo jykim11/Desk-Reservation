@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, mergeMap, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { AuthenticationService } from './authentication.service';
-import { Desk, DeskEntry, DeskReservation, User } from './models';
+import { Desk, DeskEntry } from './models';
 
 @Injectable({
   providedIn: 'root'
@@ -17,33 +17,41 @@ export class DeskService {
   ) { }
 
   /**
+   * Retrieve all desks that are in the database.
+   * 
+   * @returns observable array of Desk objects.
+   */
+  getAllDesks(): Observable<Desk[]> {
+    return this.http.get<Desk[]>('/api/desk');
+  }
+
+  /**
    * Retrieve all desks that are available.
    * 
    * @returns observable array of Desk objects.
    */
-
-  getDesk(): Observable<Desk[]> {
-    return this.http.get<Desk[]>('/api/reservation/available');
+  getAvailableDesks(): Observable<Desk[]> {
+    return this.http.get<Desk[]>('/api/desk/available');
   }
 
-  getAllDesks(): Observable<Desk[]> {
-    return this.http.get<Desk[]>('/api/reservation');
-  }
-
-  getReservations(): Observable<[[DeskReservation, Desk]]> {
-    return this.http.get<[[DeskReservation, Desk]]>('/api/reservation/desk_reservations')
-  };
-
-  getAllDeskReservations(): Observable<[[DeskReservation, Desk, User]]> {
-    return this.http.get<[[DeskReservation, Desk, User]]>('/api/reservation/admin/all')
-  }
-
+  /**
+   * Create a new desk in the database.
+   * Only available to Admin or users who have permission.
+   * 
+   * @returns observable Desk object.
+   */
   createDesk(desk: DeskEntry): Observable<Desk> {
-    return this.http.post<Desk>('/api/reservation/admin/create_desk', desk);
+    return this.http.post<Desk>('/api/desk/admin/create_desk', desk);
   }
 
+  /**
+   * Remove a desk in the database.
+   * Only available to Admin or users who have permission.
+   * 
+   * @returns observable Desk object.
+   */
   removeDesk(desk: Desk): Observable<Desk> {
-    return this.http.post<Desk>('/api/reservation/admin/remove_desk', desk);
+    return this.http.post<Desk>('/api/desk/admin/remove_desk', desk);
   }
 
 }
