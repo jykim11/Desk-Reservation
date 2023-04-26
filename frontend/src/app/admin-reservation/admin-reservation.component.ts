@@ -4,6 +4,7 @@ import { DeskService } from '../desk.service';
 import { DeskReservationService } from '../desk-reservation.service';
 import { Desk, DeskReservation, User, DeskEntry } from '../models';
 import { permissionGuard } from '../permission.guard';
+import { FormControl, Validators } from '@angular/forms';
 
 export interface TypeSelector {
   value: string;
@@ -50,26 +51,33 @@ export class AdminReservationComponent implements OnInit {
 
   selectedType!: string;
 
-  public newDeskForm: DeskEntry = {
-    tag: '',
-    desk_type: '',
-    included_resource: '',
-    available: true
-  };
-
   displayedColumns: string[] = ['pid', 'email', 'time', 'desk_tag', 'desk_type', 'included_resource', 'remove'];
 
   displayedColumnsDesks: string[] = ['desk_tag', 'desk_type', 'included_resource', 'available', 'reserve'];
 
   allDeskReservationsList: [DeskReservation, Desk, User][] = [];
   allDesks: Desk[] = [];
+  newDeskTag: FormControl
+  newDeskType: FormControl
+  newDeskIncludedResource: FormControl
   constructor(
     private deskService: DeskService, private deskReservationService: DeskReservationService,
-  ) { }
+  ) {
+    this.newDeskTag = new FormControl('', [Validators.required, this.existingDeskTagValidator.bind(this)]);
+    this.newDeskType = new FormControl('', [Validators.required]);
+    this.newDeskIncludedResource = new FormControl('',);
+   }
 
   ngOnInit(): void {
     this.getAllDeskReservations();
     this.getAllDesks();
+  }
+
+  existingDeskTagValidator(control: FormControl): { [key: string]: boolean } | null {
+    if (this.allDesks.find(desk => desk.tag.toLowerCase() === control.value.toLowerCase())) {
+      return { existingDeskTag: true };
+    }
+    return null;
   }
 
   /**
@@ -78,10 +86,11 @@ export class AdminReservationComponent implements OnInit {
    * 
    */
   createDesk() {
-    if (this.newDeskForm.tag === '' || this.newDeskForm.desk_type === '' || this.newDeskForm.available === null) {
-      return;
-    }
-    this.deskService.createDesk(this.newDeskForm).subscribe();
+    let deskTag: string = this.newDeskTag.value;
+    let deskType: string = this.newDeskType.value;
+    let includedResource: string = this.newDeskIncludedResource.value;
+    let deskForm: DeskEntry = {tag: deskTag, desk_type: deskType, included_resource: includedResource, available: true};
+    this.deskService.createDesk(deskForm).subscribe();
     this.reloadPage();
   }
 
@@ -104,7 +113,6 @@ export class AdminReservationComponent implements OnInit {
     this.deskService.getAllDesks().subscribe(
       desks => {
         this.allDesks = desks;
-        console.log(this.allDesks)
       }
     )
   }
@@ -119,7 +127,6 @@ export class AdminReservationComponent implements OnInit {
     this.deskReservationService.getAllDeskReservations().subscribe(
       deskReservations => {
         this.allDeskReservationsList = deskReservations;
-        console.log(this.allDeskReservationsList[0][0].date)
       }
     )
   }

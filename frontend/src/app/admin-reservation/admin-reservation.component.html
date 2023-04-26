@@ -51,8 +51,12 @@
             <ng-container matColumnDef="desk_tag">
                 <th mat-header-cell *matHeaderCellDef> Desk Tag </th>
                 <td mat-cell *matCellDef="let allDesks"> {{ allDesks.tag }} </td>
-                <td mat-footer-cell *matFooterCellDef><mat-form-field appearance="fill"><mat-label>Enter
-                            Tag</mat-label><input [(ngModel)]="newDeskForm.tag" matInput></mat-form-field></td>
+                <td mat-footer-cell *matFooterCellDef>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Enter Tag</mat-label>
+                        <input matInput [formControl]="newDeskTag">
+                        <mat-error *ngIf="newDeskTag.invalid">Please enter a unique tag</mat-error>
+                    </mat-form-field></td>
             </ng-container>
 
             <ng-container matColumnDef="desk_type">
@@ -61,7 +65,7 @@
                 <td mat-footer-cell *matFooterCellDef>
                     <mat-form-field appearance="fill">
                         <mat-label>Choose Desk Type</mat-label>
-                        <mat-select [(ngModel)]="newDeskForm.desk_type" name="i">
+                        <mat-select [formControl]="newDeskType" name="i">
                             <mat-option *ngFor="let i of typeoptions" [value]="i.value">
                                 {{i.value}}
                             </mat-option>
@@ -76,7 +80,7 @@
                 <td mat-footer-cell *matFooterCellDef>
                     <mat-form-field appearance="fill">
                         <mat-label>Choose Included Resource</mat-label>
-                        <mat-select [(ngModel)]="newDeskForm.included_resource" name="i">
+                        <mat-select [formControl]="newDeskIncludedResource" name="i">
                             <mat-option *ngFor="let i of inc_resource_options" [value]="i.value">
                                 {{i.value}}
                             </mat-option>
@@ -96,8 +100,8 @@
                 <th mat-header-cell *matHeaderCellDef></th>
                 <td mat-cell *matCellDef="let allDesks"><button mat-button color="warn"
                         (click)="removeDesk(allDesks)">Remove</button></td>
-                <td mat-footer-cell *matFooterCellDef><button mat-button color="accent" (click)="createDesk()">Add
-                        Desk</button></td>
+                <td mat-footer-cell *matFooterCellDef>
+                    <button mat-button color="accent" (click)="createDesk()" [disabled]="newDeskTag.invalid || newDeskType.invalid">Add Desk</button></td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumnsDesks"></tr>

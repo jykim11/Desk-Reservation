@@ -12,7 +12,7 @@ import { Desk } from '../models';
 export class ReservationDialogComponent {
 
   chosenDate!: Date;
-  chosenTime!: String;
+  chosenTime!: string;
   chosenDesk: Desk;
   minDate: Date;
   maxDate: Date;
@@ -42,16 +42,7 @@ export class ReservationDialogComponent {
 
   onConfirmClick(): void {
     this.dialogRef.close();
-    if (this.chosenTime.includes('P.M.')) {
-      this.chosenTime = this.chosenTime.split(':')[0]
-      if (this.chosenTime != '12') {
-        this.chosenTime = String(Number(this.chosenTime) + 12)
-      }
-    } else {
-      this.chosenTime = this.chosenTime.split(':')[0];
-    }
-    let chosenDateTime = this.chosenDate;
-    chosenDateTime.setHours(Number(this.chosenTime));
+    let chosenDateTime = this.parseDateTime(this.chosenDate, this.chosenTime);
     chosenDateTime.setTime(chosenDateTime.getTime() - chosenDateTime.getTimezoneOffset() * 1000 * 60);
     this.deskReservationService.createDeskReservation(this.chosenDesk, { date: chosenDateTime }).subscribe();
   }
@@ -71,6 +62,20 @@ export class ReservationDialogComponent {
 
 
   isReserved(date: Date, time: string): boolean {
-    return this.reservedDates.some((resDate) => resDate.toDateString == date.toDateString && resDate.toTimeString().includes(time.split(':')[0]))
+    return this.reservedDates.some((resDate) => resDate.toString() == this.parseDateTime(date, time).toString());
+  }
+
+  parseDateTime(date: Date, time: string): Date {
+    if (time.includes('P.M.')) {
+      time = time.split(':')[0];
+      if (time != '12') {
+        time = String(Number(time) + 12);
+      }
+    } else {
+      time = time.split(':')[0];
+    }
+    let chosenDateTime = date;
+    chosenDateTime.setHours(Number(time));
+    return chosenDateTime;
   }
 }
