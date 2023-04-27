@@ -1,10 +1,10 @@
 from fastapi import Depends
-from sqlalchemy import select, or_, func
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from ..database import db_session
 from ..models import User, Role, RoleDetails, Permission
 from ..entities import RoleEntity, PermissionEntity, UserEntity
-from .permission import PermissionService, UserPermissionError
+from .permission import PermissionService
 
 
 class RoleService:

@@ -1,7 +1,8 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DeskReservationService } from '../desk-reservation.service';
 import { Desk } from '../models';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-reservation-dialog',
@@ -9,7 +10,7 @@ import { Desk } from '../models';
   styleUrls: ['./reservation-dialog.component.css']
 })
 
-export class ReservationDialogComponent {
+export class ReservationDialogComponent implements OnInit {
 
   chosenDate!: Date;
   chosenTime!: string;
@@ -23,12 +24,21 @@ export class ReservationDialogComponent {
   constructor(
     private deskReservationService: DeskReservationService,
     public dialogRef: MatDialogRef<ReservationDialogComponent>,
+    protected snackBar: MatSnackBar,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.chosenDesk = data.myDesk;
     this.minDate = new Date();
     this.maxDate = new Date();
     this.maxDate.setDate(this.maxDate.getDate() + 30);
+    this.deskReservationService.getDeskReservationDeskId(this.chosenDesk).subscribe(res => {
+      res.forEach(reservation => {
+        this.reservedDates.push(new Date(reservation.date));
+      })
+    })
+  }
+
+  ngOnInit(): void {
     this.deskReservationService.getDeskReservationDeskId(this.chosenDesk).subscribe(res => {
       res.forEach(reservation => {
         this.reservedDates.push(new Date(reservation.date));
@@ -43,8 +53,20 @@ export class ReservationDialogComponent {
   onConfirmClick(): void {
     this.dialogRef.close();
     let chosenDateTime = this.parseDateTime(this.chosenDate, this.chosenTime);
-    chosenDateTime.setTime(chosenDateTime.getTime() - chosenDateTime.getTimezoneOffset() * 1000 * 60);
+    chosenDateTime.setTime(chosenDateTime.getTime() - chosenDateTime.getTimezoneOffset() * 60 * 1000);
     this.deskReservationService.createDeskReservation(this.chosenDesk, { date: chosenDateTime }).subscribe();
+
+    // Formatting the Date as WEEKDAY, MONTH, DAY, YEAR
+    let formattedDate = chosenDateTime.toLocaleDateString('en-US',
+      {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      })
+
+    this.snackBar.open(`Desk Reserved - ${this.chosenDesk.tag} - ${formattedDate} - ${this.chosenTime}`, '', { duration: 4000 });
+
   }
 
 
@@ -66,6 +88,10 @@ export class ReservationDialogComponent {
   }
 
   parseDateTime(date: Date, time: string): Date {
+    if (!date) {
+      return new Date();
+    }
+
     if (time.includes('P.M.')) {
       time = time.split(':')[0];
       if (time != '12') {
@@ -74,6 +100,7 @@ export class ReservationDialogComponent {
     } else {
       time = time.split(':')[0];
     }
+
     let chosenDateTime = date;
     chosenDateTime.setHours(Number(time));
     return chosenDateTime;

@@ -48,7 +48,6 @@ export class DeskReservationService {
    * @returns observable DeskReservation object.
    */
   createDeskReservation(desk: Desk, reservation: DeskReservationEntry): Observable<DeskReservation> {
-    console.log({ desk, reservation })
     return this.http.post<DeskReservation>('/api/reservation/reserve', { desk, reservation });
   }
 

@@ -29,7 +29,7 @@
                     <ng-container matColumnDef="date">
                         <th mat-header-cell *matHeaderCellDef> Reservation Date </th>
                         <td mat-cell *matCellDef="let deskReservationsList"> {{ deskReservationsList[0].date |
-                            date:'EEEE, MMMM d, y, h:mm:ss a'}} </td>
+                            date:'EEEE, MMMM d, y - h:mm a'}} </td>
                     </ng-container>
 
                     <ng-container matColumnDef="cancel">
@@ -68,7 +68,7 @@
 
                         <ng-container matColumnDef="reserve">
                             <th mat-header-cell *matHeaderCellDef></th>
-                            <td mat-cell *matCellDef="let desk"><button mat-button color="accent"
+                            <td mat-cell *matCellDef="let desk"><button mat-raised-button color="accent"
                                     (click)="openDialog(desk)">Reserve</button></td>
                         </ng-container>
 
@@ -76,12 +76,6 @@
                         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                     </table>
                 </div>
-            </div>
-        </mat-tab>
-        <mat-tab label="Equipment Reservations">
-            <div class="holder1">
-                <h2> Your Equipment Reservations</h2>
-                <h2>Avaliable Equipments</h2>
             </div>
         </mat-tab>
     </mat-tab-group>

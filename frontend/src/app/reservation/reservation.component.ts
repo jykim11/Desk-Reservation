@@ -4,9 +4,10 @@ import { isAuthenticated } from '../gate/gate.guard';
 import { DeskService } from '../desk.service';
 import { DeskReservationService } from '../desk-reservation.service';
 import { Desk, DeskReservation } from '../models';
-import { FormBuilder } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ReservationDialogComponent } from '../reservation-dialog/reservation-dialog.component';
+import { Router } from '@angular/router';
 
 
 export interface DialogData {
@@ -37,14 +38,13 @@ export class ReservationComponent implements OnInit {
   displayedColumns: string[] = ['desk_tag', 'desk_type', 'included_resource', 'reserve'];
   dipslayedColumnsReservations: string[] = ['desk_tag', 'desk_type', 'included_resource', 'date', 'cancel'];
 
-
-
   constructor(
-    private deskService: DeskService, private deskReservationService: DeskReservationService, private _formBuilder: FormBuilder, public dialog: MatDialog
-  ) {
-    selectedDate: Date;
-    selectedTime: Date;
-  }
+    private deskService: DeskService,
+    private deskReservationService: DeskReservationService,
+    public dialog: MatDialog,
+    private router: Router,
+    protected snackBar: MatSnackBar
+  ) { }
 
   openDialog(selectedDesk: Desk): void {
     const dialogRef = this.dialog.open(ReservationDialogComponent, {
@@ -52,19 +52,25 @@ export class ReservationComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
       this.resTime = result;
-      console.log(this.resTime)
-      console.log(result)
 
-      console.log('reached here')
-      this.reloadPage();
+      setTimeout(() => {
+        this.reloadPage();
+      }, 0);
+
     });
   }
 
   ngOnInit(): void {
-    this.getAvailableDesks();
-    this.getDeskReservationsByUser();
+    // Sorting the desk by Desk Tag (Alphabetically)
+    this.deskService.getAvailableDesks().subscribe(desks => {
+      this.desk = desks.sort((a, b) => a.tag.localeCompare(b.tag));
+    });
+
+    // Get the desk reservations
+    this.deskReservationService.getDeskReservationsByUser().subscribe(reservations => {
+      this.deskReservationsList = reservations;
+    });
   }
 
   /**
@@ -74,7 +80,6 @@ export class ReservationComponent implements OnInit {
   getAvailableDesks(): void {
     this.deskService.getAvailableDesks().subscribe(desks => {
       this.desk = desks;
-      console.log(this.desk)
     })
   }
 
@@ -95,8 +100,23 @@ export class ReservationComponent implements OnInit {
    * 
    */
   removeDeskReservation(deskReservationsListItem: [DeskReservation, Desk]): void {
+
+    let reservationDate = new Date(deskReservationsListItem[0].date);
+    let reservationTime = reservationDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    let formattedDate = reservationDate.toLocaleDateString('en-US',
+      {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      })
+
     this.deskReservationService.removeDeskReservation(deskReservationsListItem[1], deskReservationsListItem[0]).subscribe();
-    console.log(deskReservationsListItem)
+
+    let message = `Desk Reservation on ${formattedDate} at ${reservationTime} canceled`;
+    this.snackBar.open(message, "", { duration: 4000 });
+
     this.reloadPage();
   }
 
@@ -107,8 +127,15 @@ export class ReservationComponent implements OnInit {
     return `${parts[0]}-${parts[1]}-${parts[2]}`;
   }
 
-  reloadPage() {
-    location.reload();
+  /**
+   * Disabled reloading to allow users to see the SnackBar after their actions.
+   * 
+   */
+  reloadPage(): void {
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      this.router.navigate(['/reservation']);
+    });
+
   }
 
 }

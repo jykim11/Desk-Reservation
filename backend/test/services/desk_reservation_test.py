@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from ...models import User, Desk, DeskReservation, Role
-from ...entities import UserEntity, DeskEntity, DeskReservationEntity, PermissionEntity, RoleEntity
-from ...services import DeskReservationService, PermissionService
+from ...entities import UserEntity, DeskEntity, PermissionEntity, RoleEntity
+from ...services import DeskReservationService, PermissionService, UserPermissionError
 
 # Mock Models #
 # Desks
@@ -87,6 +87,17 @@ def test_list_all_desk_reservations_for_admin(test_session: Session):
     assert all_reservations is not None
     assert [reservation[1].tag for reservation in all_reservations if reservation[1].tag == 'CD1']
     assert len(all_reservations) == 3
+
+# Test listing all desk reservations (Testing for student)
+def test_list_all_desk_reservations_as_student(test_session: Session):
+    permission = PermissionService(test_session)
+    desk_reservation_service = DeskReservationService(test_session, permission)
+
+    desk_reservation_service.create_desk_reservation(desk1, student1, reservation1)
+    desk_reservation_service.create_desk_reservation(desk2, student2, reservation2)
+
+    with pytest.raises(UserPermissionError):
+        desk_reservation_service.list_all_desk_reservations_for_admin(student1)
     
 
 # Test desk reservation by user.

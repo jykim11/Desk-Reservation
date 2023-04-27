@@ -14,13 +14,13 @@ export class AdminComponent implements OnInit {
   public links = [
     { label: 'Users', path: '/admin/users' },
     { label: 'Roles', path: '/admin/roles' },
-    { label: 'Reservations', path: '/admin-reservation'},
+    { label: 'Reservations', path: '/admin-reservation' },
   ];
 
   constructor(public profileService: ProfileService) {
     this.profile$ = profileService.profile$;
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
 }

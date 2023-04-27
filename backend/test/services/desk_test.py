@@ -1,10 +1,10 @@
 import pytest
 
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
-from ...models import User, Desk, DeskReservation, Role, Permission
-from ...entities import UserEntity, DeskEntity, DeskReservationEntity, RoleEntity, PermissionEntity
-from ...services import DeskService, PermissionService
+
+from ...models import User, Desk, Role
+from ...entities import UserEntity, DeskEntity, RoleEntity, PermissionEntity
+from ...services import DeskService, PermissionService, UserPermissionError
 
 # Mock Models #
 # Desks
@@ -14,6 +14,11 @@ desk2 = Desk(id=2, tag='CD1', desk_type='Standing Desk', included_resource='Wind
 # Root User
 root = User(id=1, pid=999999999, onyen='root', email='root@unc.edu')
 root_role = Role(id=1, name='root')
+
+# Student User
+student1 = User(id=2, pid=123456789, onyen='student1', email='student1@unc.edu')
+student2 = User(id=3, pid=987654321, onyen='student2', email='student2@unc.edu')
+
 
 @pytest.fixture(autouse=True)
 def setup_teardown(test_session: Session):
@@ -26,6 +31,15 @@ def setup_teardown(test_session: Session):
     root_permission_entity = PermissionEntity(
         action='*', resource='*', role=root_role_entity)
     test_session.add(root_permission_entity)
+
+    # Bootstrap for Student User
+    student1_entity = UserEntity.from_model(student1)
+    student2_entity = UserEntity.from_model(student2)
+
+    test_session.add(student1_entity)
+    test_session.add(student2_entity)
+
+    test_session.commit()
 
     # Bootstrap for Desks
     desk1_entity = DeskEntity.from_model(desk1)
@@ -56,6 +70,10 @@ def test_list_all_desks(desk_service: DeskService):
     
     assert [desk.tag for desk in desks] == ['AA1', 'CD1']
 
+# Test listing all desks in the database AS a student.
+def test_list_all_desks_as_student(desk_service: DeskService):
+    with pytest.raises(UserPermissionError):
+        desk_service.list_all_desks(student1)
 
 # Test making the desk unavailable to reserve (for Admin).
 def test_make_desk_unavailable(desk_service: DeskService):
@@ -78,7 +96,7 @@ def test_make_desk_available(desk_service: DeskService):
     assert desk1_available.available == True
 
 
-# Test to create new desk.
+# Test to create new desk (Admin).
 def test_create_desk(desk_service: DeskService):
     desk3 = Desk(id=3, tag='ND1', desk_type='Standing Desk', included_resource='iMac w/ Pro Display', available=True)
 
@@ -89,6 +107,22 @@ def test_create_desk(desk_service: DeskService):
     assert new_desk is not None
 
 
+# Test for Student trying to create a new desk.
+def test_create_desk_as_student(desk_service: DeskService):
+    desk3 = Desk(id=3, tag='ND1', desk_type='Standing Desk', included_resource='iMac w/ Pro Display', available=True)
+
+    with pytest.raises(UserPermissionError):
+        desk_service.create_desk(desk3, student1)
+
+
+# Test for Second Student trying to create a new desk.
+def test_create_desk_as_student(desk_service: DeskService):
+    desk4 = Desk(id=4, tag='ND4', desk_type='Standing Desk', included_resource='iMac w/ Pro Display', available=True)
+
+    with pytest.raises(UserPermissionError):
+        desk_service.create_desk(desk4, student2)
+
+
 # Test to remove a desk.
 def test_remove_desk(desk_service: DeskService):
     desk_service._permission.enforce(root, 'admin/', '*')
@@ -96,3 +130,15 @@ def test_remove_desk(desk_service: DeskService):
     removed_desk1 = desk_service.remove_desk(desk1, root)
     assert removed_desk1.tag == desk1.tag
     assert removed_desk1 is not None
+
+
+# Test of Student 1 removing a desk.
+def test_remove_desk_as_student(desk_service: DeskService):
+    with pytest.raises(UserPermissionError):
+        desk_service.remove_desk(desk1, student1)
+
+
+# Test of Student 2 removing a desk.
+def test_remove_desk_as_student(desk_service: DeskService):
+    with pytest.raises(UserPermissionError):
+        desk_service.remove_desk(desk2, student2)
