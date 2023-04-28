@@ -132,3 +132,24 @@ def test_remove_desk_as_student(desk_service: DeskService):
 def test_remove_desk_as_student(desk_service: DeskService):
     with pytest.raises(UserPermissionError):
         desk_service.remove_desk(desk2, student2)
+    
+
+# Test update Desk.
+def test_update_desk(desk_service: DeskService):
+    desk5 = Desk(id=5, tag='BD1', desk_type='Computer Desk', included_resource='Pro Display XDR w/ Mac Pro', available=True)
+    desk_service._permission.enforce(root, 'admin/', '*')
+    create_desk = desk_service.create_desk(desk5, root)
+
+    desk5_update = Desk(id=5, tag='BD1', desk_type='Standing Desk', included_resource='Windows Desktop i9', available=False)
+
+    desk_service.update_desk(desk5.id, desk5_update, root)
+    assert create_desk.id == desk5_update.id
+    assert desk5_update.tag == 'BD1'
+    assert desk5_update.desk_type == 'Standing Desk'
+
+
+# Test update Desk as a student.
+def test_update_desk_as_student(desk_service: DeskService):
+    updated_desk = Desk(id=2, tag='CD1', desk_type='Computer Desk', included_resource='Windows Desktop i5', available=True)
+    with pytest.raises(UserPermissionError):
+        desk_service.update_desk(desk2.id, updated_desk, student1)

@@ -40,8 +40,9 @@ import { ReservationComponent } from './reservation/reservation.component';
 import { MatTableModule } from '@angular/material/table';
 import { ReservationDialogComponent } from './reservation-dialog/reservation-dialog.component';
 import { AdminReservationComponent } from './admin-reservation/admin-reservation.component';
-import { MatSelectModule } from '@angular/material/select';
+import {  MatSelectModule  } from '@angular/material/select';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
+import { AdminDeskDialogComponent } from './admin-desk-dialog/admin-desk-dialog.component';
 
 @NgModule({
   declarations: [
@@ -55,6 +56,7 @@ import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-
     ReservationDialogComponent,
     AdminReservationComponent,
     ConfirmationDialogComponent,
+    AdminDeskDialogComponent,
   ],
   imports: [
     BrowserModule,

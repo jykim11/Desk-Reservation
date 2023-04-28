@@ -10,6 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTable } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { AdminDeskDialogComponent } from '../admin-desk-dialog/admin-desk-dialog.component';
 
 export interface TypeSelector {
   value: string;
@@ -63,11 +64,15 @@ export class AdminReservationComponent implements OnInit {
 
   displayedColumns: string[] = ['pid', 'name', 'email', 'time', 'desk_tag', 'desk_type', 'included_resource', 'remove'];
 
-  displayedColumnsDesks: string[] = ['desk_tag', 'desk_type', 'included_resource', 'available', 'reserve'];
+  displayedColumnsDesks: string[] = ['desk_tag', 'desk_type', 'included_resource', 'available', 'update', 'reserve'];
 
-  allDeskReservationsList: [DeskReservation, Desk, User][] = [];
   futureDeskReservationsList: [DeskReservation, Desk, User][] = [];
   pastDeskReservationsList: [DeskReservation, Desk, User][] = [];
+  filteredDeskReservationsList: [DeskReservation, Desk, User][] = [];
+  filteredFutureDeskReservationsList: [DeskReservation, Desk, User][] = [];
+  filteredPastDeskReservationsList: [DeskReservation, Desk, User][] = [];
+  searchByPid!: string;
+
   allDesks: Desk[] = [];
   newDeskTag: FormControl
   newDeskType: FormControl
@@ -93,6 +98,38 @@ export class AdminReservationComponent implements OnInit {
     this.getFutureDeskReservations();
     this.getPastDeskReservations();
     this.getAllDesks();
+    // TODO: REWRITE THIS
+    /*
+    this.filteredDeskReservationsList = this.allDeskReservationsList;
+    this.filteredFutureDeskReservationsList = this.futureDeskReservationsList;
+    this.filteredPastDeskReservationsList = this.pastDeskReservationsList;
+    */
+  }
+  /*
+  filterFutureByPid() {
+    if (this.searchByPid) {
+      this.futureDeskReservationsList = this.futureDeskReservationsList.filter(
+        reservation => reservation[2].pid.toString().startsWith(this.searchByPid)
+      );
+    } else {
+      this.filteredFutureDeskReservationsList = this.futureDeskReservationsList;
+      this.filteredPastDeskReservationsList = this.pastDeskReservationsList;
+    }
+  }
+
+  filterPastByPid() {
+    if (this.searchByPid) {
+      this.pastDeskReservationsList = this.pastDeskReservationsList.filter(
+        reservation => reservation[2].pid.toString().startsWith(this.searchByPid)
+    );
+    } else {
+      this.filteredPastDeskReservationsList = this.pastDeskReservationsList;
+    }
+  }
+  */
+  filterByPid() {
+    this.getFutureDeskReservations();
+    this.getPastDeskReservations();
   }
 
   existingDeskTagValidator(control: FormControl): { [key: string]: boolean } | null {
@@ -135,6 +172,8 @@ export class AdminReservationComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.deskService.removeDesk(desk).subscribe(() => {
+          this.getFutureDeskReservations()
+          this.getPastDeskReservations()
           this.getAllDesks()}); 
         this.snackBar.open(`Desk ${desk.tag} Removed.`, "", { duration: 4000, panelClass: ['center-text'] })
       }
@@ -161,6 +200,11 @@ export class AdminReservationComponent implements OnInit {
     this.deskReservationService.getFutureDeskReservations().subscribe(
       deskReservations => {
         this.futureDeskReservationsList = deskReservations;
+        if (this.searchByPid) {
+          this.futureDeskReservationsList = this.futureDeskReservationsList.filter(
+            reservation => reservation[2].pid.toString().startsWith(this.searchByPid)
+          );
+        }
       }
     )
   }
@@ -173,6 +217,11 @@ export class AdminReservationComponent implements OnInit {
     this.deskReservationService.getPastDeskReservations().subscribe(
       deskReservations => {
         this.pastDeskReservationsList = deskReservations;
+        if (this.searchByPid) {
+          this.pastDeskReservationsList = this.pastDeskReservationsList.filter(
+            reservation => reservation[2].pid.toString().startsWith(this.searchByPid)
+          );
+        }
       }
     )
   }
@@ -204,7 +253,25 @@ export class AdminReservationComponent implements OnInit {
     let message = `Desk Reservation on ${formattedDate} at ${reservationTime} Canceled. \n (Admin Override - PID: ${pid})`
     this.snackBar.open(message, '', { duration: 4000, panelClass: ['center-text', 'success-snackbar'] });
 
-    
+  }
+
+
+  updateDesk(desk: Desk) {
+    const dialogRef = this.dialog.open(AdminDeskDialogComponent, {
+      data: { myDesk: desk },
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+
+      desk.desk_type = result.new_type;
+      desk.included_resource = result.new_resource;
+      this.deskService.updateDesk(desk).subscribe(() => {
+        this.getAllDesks();
+      });
+      this.snackBar.open(`Desk ${desk.tag} Successfully Updated`, '', { duration: 4000, panelClass: ['center-text', 'success-snackbar'] });
+
+
+    });
 
   }
 

@@ -43,6 +43,15 @@
                 </table>
                 <h2 style="margin-top: 15px;">Avaliable Desks</h2>
                 <div>
+
+                    <mat-form-field appearance="fill">
+                        <mat-label>Select Desk Type</mat-label>
+                        <mat-select (selectionChange)="filterByType($event.value)">
+                            <mat-option *ngFor="let type of typeoptions"
+                                [value]="type.value">{{type.value}}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
                     <table mat-table [dataSource]="desk" class="mat-elevation-z8">
 
                         <ng-container matColumnDef="desk_tag">

@@ -10,10 +10,8 @@ import { ReservationDialogComponent } from '../reservation-dialog/reservation-di
 import { Router } from '@angular/router';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 
-
-export interface DialogData {
-  animal: string;
-  name: string;
+export interface TypeSelector {
+  value: string;
 }
 
 @Component({
@@ -23,6 +21,15 @@ export interface DialogData {
 
 })
 export class ReservationComponent implements OnInit {
+
+  typeoptions: TypeSelector[] = [
+    { value: 'All' },
+    { value: 'Computer Desk' },
+    { value: 'Standing Desk' },
+    { value: 'Open Study Desk' },
+    { value: 'Enclosed Study Desk' },
+    { value: 'Enclosed Study Office' },
+  ];
 
   public static Route: Route = {
     path: 'reservation',
@@ -47,6 +54,11 @@ export class ReservationComponent implements OnInit {
     protected snackBar: MatSnackBar
   ) { }
 
+
+  /**
+   * Opens up a dialog that the user can select
+   * date and time of the reservation.
+   */
   openDialog(selectedDesk: Desk): void {
     const dialogRef = this.dialog.open(ReservationDialogComponent, {
       data: { myDesk: selectedDesk },
@@ -72,6 +84,25 @@ export class ReservationComponent implements OnInit {
     this.deskReservationService.getDeskReservationsByUser().subscribe(reservations => {
       this.deskReservationsList = reservations;
     });
+
+  }
+
+
+  /**
+   * Filters the desk by Desk Type for the Frontend users.
+   * 
+   */
+  filterByType(deskType: string) {
+    if (deskType === "All") {
+      this.deskService.getAvailableDesks().subscribe(desks => {
+        this.desk = desks.sort((a, b) => a.tag.localeCompare(b.tag));
+      });
+    } else {
+      this.deskService.getAvailableDesks().subscribe(desks => {
+        this.desk = desks.filter(desk => desk.desk_type === deskType).sort((a, b) => a.tag.localeCompare(b.tag));
+      });
+    }
+
   }
 
   /**
@@ -110,9 +141,11 @@ export class ReservationComponent implements OnInit {
       hour: '2-digit',
       minute: '2-digit'
     })
+
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      data: { message:  "Are you sure you want to remove the reservation for " + deskReservationsListItem[1].tag + " on " + date + "?" },
+      data: { message: "Are you sure you want to remove the reservation for " + deskReservationsListItem[1].tag + " on " + date + "?" },
     })
+
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.deskReservationService.removeDeskReservation(deskReservationsListItem[1], deskReservationsListItem[0]).subscribe();

@@ -53,3 +53,21 @@ def toggle_desk_availability(desk: Desk, subject : User = Depends(registered_use
         return desk_service.toggle_desk_availability(desk, subject)
     except Exception as e:
         raise HTTPException(status_code=403, detail=str(e))
+    
+
+# Get Desk by Desk ID
+@api.get("/{desk_id}", tags=['Desk'])
+def get_desk_desk_id(desk_id: int, desk_service: DeskService = Depends()):
+    try:
+        return desk_service.get_desk_by_id(desk_id)
+    except Exception as e:
+        raise HTTPException(status_code=403, detail=str(e))
+
+
+# Update Desk
+@api.put("/admin/update_desk/{desk_id}", tags=['Desk'])
+def update_desk(desk_id: int, desk: Desk, subject : User = Depends(registered_user), desk_service: DeskService = Depends()):
+    try:
+        return desk_service.update_desk(desk_id, desk, subject)
+    except Exception as e:
+        raise HTTPException(status_code=403, detail=str(e))

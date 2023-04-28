@@ -65,4 +65,26 @@ export class DeskService {
     return this.http.put<Desk>('/api/desk/admin/toggle_availability', desk);
   }
 
+
+  /**
+   * Get a desk by desk ID in the database.
+   * Only available to Admin or users who have permission.
+   * 
+   * @returns observable Desk object.
+   */
+  getDeskByID(desk: Desk): Observable<Desk> {
+    return this.http.get<Desk>(`/api/desk/${desk.id}`)
+  }
+
+
+  /**
+   * Update a desk in the database.
+   * Only available to Admin or users who have permission.
+   * 
+   * @returns observable Desk object.
+   */
+  updateDesk(desk: Desk): Observable<Desk> {
+    return this.http.put<Desk>(`/api/desk/admin/update_desk/${desk.id}`, desk)
+  }
+
 }

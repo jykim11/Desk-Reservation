@@ -5,6 +5,10 @@
     </nav>
     <mat-tab-nav-panel #tabPanel>
         <div class="holder1">
+            <mat-form-field appearance="fill">
+                <mat-label>Search by PID</mat-label>
+                <input matInput [(ngModel)]="searchByPid" (keyup)="filterByPid()" />
+            </mat-form-field>
             <mat-tab-group dynamicHeight>
                 <mat-tab label="Manage Upcoming Reservations">
                     <table #futureRes mat-table [dataSource]="futureDeskReservationsList" class="futureRes">
@@ -17,6 +21,7 @@
                             <th mat-header-cell *matHeaderCellDef> Student Name </th>
                             <td mat-cell *matCellDef="let futureDeskReservationsList"> {{ futureDeskReservationsList[2].first_name + " " + futureDeskReservationsList[2].last_name }} </td>
                         </ng-container>
+
 
                         <ng-container matColumnDef="email">
                             <th mat-header-cell *matHeaderCellDef> Student Email </th>
@@ -163,6 +168,14 @@
                         <button mat-button (click)="toggleAvailability(allDesks)">{{ allDesks.available ? 'Available' : 'Not Available'}}</button>
                     </td>
                     <td mat-footer-cell *matFooterCellDef></td>
+                </ng-container>
+
+                <ng-container matColumnDef="update">
+                    <th mat-header-cell *matHeaderCellDef></th>
+                    <td mat-cell *matCellDef="let allDesks"><button mat-button color="accent"
+                            (click)="updateDesk(allDesks)">Update</button></td>
+                    <td mat-footer-cell *matFooterCellDef>
+                    </td>
                 </ng-container>
 
                 <ng-container matColumnDef="reserve">

@@ -99,3 +99,37 @@ class DeskService:
             self._session.execute(stmt)
         self._session.commit()
         return desk_entity.to_model()
+    
+
+    def get_desk_by_id(self, desk_id: int) -> Desk:
+        """Get a desk by its ID.
+
+        Args:
+            desk_id: The ID of the desk to retrieve.
+
+        Returns:
+            Desk: The desk entity with the specified ID.
+        """
+        stmt = select(DeskEntity).where(DeskEntity.id == desk_id)
+        desk_entity = self._session.execute(stmt).scalar_one_or_none()
+        return desk_entity.to_model()
+    
+    
+    def update_desk(self, desk_id: int, desk: Desk, subject: User) -> Desk:
+        """Update an existing desk.
+
+        Args:
+            desk_id: The id of the desk to update.
+            desk: The updated desk information.
+            subject: The user performing the action.
+
+        Returns:
+            Desk: The updated desk entity.
+        """
+        self._permission.enforce(subject, 'admin/', 'desk')
+        desk_entity = self._session.get(DeskEntity, desk_id)
+        desk_entity.desk_type = desk.desk_type
+        desk_entity.included_resource = desk.included_resource
+        desk_entity.available = desk.available
+        self._session.commit()
+        return desk_entity.to_model()
