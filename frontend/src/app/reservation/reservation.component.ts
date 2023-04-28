@@ -8,6 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ReservationDialogComponent } from '../reservation-dialog/reservation-dialog.component';
 import { Router } from '@angular/router';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 
 
 export interface DialogData {
@@ -100,24 +101,28 @@ export class ReservationComponent implements OnInit {
    * 
    */
   removeDeskReservation(deskReservationsListItem: [DeskReservation, Desk]): void {
+    let resDate = new Date(deskReservationsListItem[0].date)
+    let date = resDate.toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: { message:  "Are you sure you want to remove the reservation for " + deskReservationsListItem[1].tag + " on " + date + "?" },
+    })
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.deskReservationService.removeDeskReservation(deskReservationsListItem[1], deskReservationsListItem[0]).subscribe();
 
-    let reservationDate = new Date(deskReservationsListItem[0].date);
-    let reservationTime = reservationDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        let message = `Desk Reservation on ${date} canceled`;
+        this.snackBar.open(message, "", { duration: 4000 });
 
-    let formattedDate = reservationDate.toLocaleDateString('en-US',
-      {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric'
-      })
-
-    this.deskReservationService.removeDeskReservation(deskReservationsListItem[1], deskReservationsListItem[0]).subscribe();
-
-    let message = `Desk Reservation on ${formattedDate} at ${reservationTime} canceled`;
-    this.snackBar.open(message, "", { duration: 4000 });
-
-    this.reloadPage();
+        this.reloadPage();
+      }
+    })
   }
 
 

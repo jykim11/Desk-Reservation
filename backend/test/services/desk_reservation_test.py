@@ -28,6 +28,8 @@ student3 = User(id=4, pid=123456780, onyen='student3', email='student3@unc.edu')
 reservation1 = DeskReservation(id=1, date=datetime.now() + timedelta(days=1))
 reservation2 = DeskReservation(id=2, date=datetime.now() + timedelta(days=2))
 reservation3 = DeskReservation(id=3, date=datetime.now() + timedelta(days=3))
+reservation4 = DeskReservation(id=4, date=datetime.now() - timedelta(days=1))
+reservation5 = DeskReservation(id=5, date=datetime.now() - timedelta(days=2))
 
 @pytest.fixture(autouse=True)
 def setup_teardown(test_session: Session):
@@ -71,9 +73,8 @@ def setup_teardown(test_session: Session):
 def desk_reservation_service(test_session: Session):
     return DeskReservationService(test_session)
 
-
-# Test listing all desk reservations (for Admin).
-def test_list_all_desk_reservations_for_admin(test_session: Session):
+# Test listing future desk reservations (for Admin).
+def test_list_future_desk_reservations_for_admin(test_session: Session):
     permission = PermissionService(test_session)
     desk_reservation_service = DeskReservationService(test_session, permission)
     desk_reservation_service._permission.enforce(root, 'admin/', '*')
@@ -81,15 +82,52 @@ def test_list_all_desk_reservations_for_admin(test_session: Session):
     desk_reservation_service.create_desk_reservation(desk1, student1, reservation1)
     desk_reservation_service.create_desk_reservation(desk2, student2, reservation2)
     desk_reservation_service.create_desk_reservation(desk3, student3, reservation3)
+    desk_reservation_service.create_desk_reservation(desk1, student1, reservation4)
+    desk_reservation_service.create_desk_reservation(desk2, student2, reservation5)
 
-    all_reservations = desk_reservation_service.list_all_desk_reservations_for_admin(root)
+    future_reservations = desk_reservation_service.list_future_desk_reservations_for_admin(root)
 
-    assert all_reservations is not None
-    assert [reservation[1].tag for reservation in all_reservations if reservation[1].tag == 'CD1']
-    assert len(all_reservations) == 3
+    assert future_reservations is not None
+    assert len(future_reservations) == 3
+
+# Test listing past desk reservations (for Admin).
+def test_list_past_desk_reservations_for_admin(test_session: Session):
+    permission = PermissionService(test_session)
+    desk_reservation_service = DeskReservationService(test_session, permission)
+    desk_reservation_service._permission.enforce(root, 'admin/', '*')
+
+    desk_reservation_service.create_desk_reservation(desk1, student1, reservation1)
+    desk_reservation_service.create_desk_reservation(desk2, student2, reservation2)
+    desk_reservation_service.create_desk_reservation(desk3, student3, reservation3)
+    desk_reservation_service.create_desk_reservation(desk1, student1, reservation4)
+    desk_reservation_service.create_desk_reservation(desk2, student2, reservation5)
+
+    past_reservations = desk_reservation_service.list_past_desk_reservations_for_admin(root)
+
+    assert past_reservations is not None
+    assert len(past_reservations) == 2
+
+# Test the removal of old reservations (for Admin).
+def test_remove_old_reservations(test_session: Session):
+    permission = PermissionService(test_session)
+    desk_reservation_service = DeskReservationService(test_session, permission)
+    desk_reservation_service._permission.enforce(root, 'admin/', '*')
+
+    reservation6 = DeskReservation(id=6, date=datetime.now() - timedelta(days=31))
+    
+    desk_reservation_service.create_desk_reservation(desk1, student1, reservation1)
+    desk_reservation_service.create_desk_reservation(desk2, student2, reservation2)
+    desk_reservation_service.create_desk_reservation(desk3, student3, reservation3)
+    desk_reservation_service.create_desk_reservation(desk1, student1, reservation4)
+    desk_reservation_service.create_desk_reservation(desk2, student2, reservation5)
+    desk_reservation_service.create_desk_reservation(desk1, student1, reservation6)
+
+    desk_reservation_service.remove_old_reservations(root)
+    reservation = desk_reservation_service.list_past_desk_reservations_for_admin(root)
+    assert len(reservation) == 2
 
 # Test listing all desk reservations (Testing for student)
-def test_list_all_desk_reservations_as_student(test_session: Session):
+def test_list_desk_reservations_as_student(test_session: Session):
     permission = PermissionService(test_session)
     desk_reservation_service = DeskReservationService(test_session, permission)
 
@@ -97,7 +135,8 @@ def test_list_all_desk_reservations_as_student(test_session: Session):
     desk_reservation_service.create_desk_reservation(desk2, student2, reservation2)
 
     with pytest.raises(UserPermissionError):
-        desk_reservation_service.list_all_desk_reservations_for_admin(student1)
+        desk_reservation_service.list_future_desk_reservations_for_admin(student1)
+        desk_reservation_service.list_past_desk_reservations_for_admin(student1)
     
 
 # Test desk reservation by user.
@@ -176,3 +215,4 @@ def test_list_reservations_by_user_past_dates(desk_reservation_service: DeskRese
 
     reservations = desk_reservation_service.list_desk_reservations_by_user(student2)
     assert len(reservations) == 1
+

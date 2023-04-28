@@ -7,6 +7,9 @@ import { permissionGuard } from '../permission.guard';
 import { FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTable } from '@angular/material/table';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 
 export interface TypeSelector {
   value: string;
@@ -58,11 +61,13 @@ export class AdminReservationComponent implements OnInit {
 
   selectedType!: string;
 
-  displayedColumns: string[] = ['pid', 'email', 'time', 'desk_tag', 'desk_type', 'included_resource', 'remove'];
+  displayedColumns: string[] = ['pid', 'name', 'email', 'time', 'desk_tag', 'desk_type', 'included_resource', 'remove'];
 
   displayedColumnsDesks: string[] = ['desk_tag', 'desk_type', 'included_resource', 'available', 'reserve'];
 
   allDeskReservationsList: [DeskReservation, Desk, User][] = [];
+  futureDeskReservationsList: [DeskReservation, Desk, User][] = [];
+  pastDeskReservationsList: [DeskReservation, Desk, User][] = [];
   allDesks: Desk[] = [];
   newDeskTag: FormControl
   newDeskType: FormControl
@@ -72,7 +77,8 @@ export class AdminReservationComponent implements OnInit {
     private deskService: DeskService,
     private deskReservationService: DeskReservationService,
     private router: Router,
-    protected snackBar: MatSnackBar
+    protected snackBar: MatSnackBar,
+    public dialog: MatDialog,
   ) {
     this.newDeskTag = new FormControl('',
       [Validators.required,
@@ -84,7 +90,8 @@ export class AdminReservationComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getAllDeskReservations();
+    this.getFutureDeskReservations();
+    this.getPastDeskReservations();
     this.getAllDesks();
   }
 
@@ -109,12 +116,11 @@ export class AdminReservationComponent implements OnInit {
 
     // Sorts the desk by tag when the desk is being created.
     this.deskService.createDesk(deskForm).subscribe(() => {
+      this.getAllDesks();
       this.allDesks.sort((a, b) => a.tag.localeCompare(b.tag));
     });
 
     this.snackBar.open(`Desk ${deskTag} Added`, "", { duration: 4000, panelClass: ['center-text'] })
-    this.reloadPage();
-
   }
 
 
@@ -123,9 +129,16 @@ export class AdminReservationComponent implements OnInit {
    * Only available to Admin or users who have permission.
    */
   removeDesk(desk: Desk) {
-    this.deskService.removeDesk(desk).subscribe();
-    this.snackBar.open(`Desk ${desk.tag} Removed.`, "", { duration: 4000, panelClass: ['center-text'] })
-    this.reloadPage();
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: { message: `Are you sure you want to remove Desk ${desk.tag}?` }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.deskService.removeDesk(desk).subscribe(() => {
+          this.getAllDesks()}); 
+        this.snackBar.open(`Desk ${desk.tag} Removed.`, "", { duration: 4000, panelClass: ['center-text'] })
+      }
+    })
   }
 
 
@@ -140,16 +153,26 @@ export class AdminReservationComponent implements OnInit {
       })
   }
 
+  /**
+   * FOR ADMIN:
+   * Retrieve future desk reservations for admin view.
+   */
+  getFutureDeskReservations(): void {
+    this.deskReservationService.getFutureDeskReservations().subscribe(
+      deskReservations => {
+        this.futureDeskReservationsList = deskReservations;
+      }
+    )
+  }
 
   /**
    * FOR ADMIN:
-   * Retrieve all desk reservations for admin view.
-   * 
+   * Retrieve past desk reservations for admin view.
    */
-  getAllDeskReservations(): void {
-    this.deskReservationService.getAllDeskReservations().subscribe(
+  getPastDeskReservations(): void {
+    this.deskReservationService.getPastDeskReservations().subscribe(
       deskReservations => {
-        this.allDeskReservationsList = deskReservations;
+        this.pastDeskReservationsList = deskReservations;
       }
     )
   }
@@ -172,20 +195,91 @@ export class AdminReservationComponent implements OnInit {
         year: 'numeric'
       })
 
-    this.deskReservationService.removeDeskReservation(deskReservationsListItem[1], deskReservationsListItem[0]).subscribe();
-
+    this.deskReservationService.removeDeskReservation(deskReservationsListItem[1], deskReservationsListItem[0]).subscribe(() => {
+      if(reservationDate > new Date()) {
+        this.getFutureDeskReservations();
+      } else {
+        this.getPastDeskReservations();
+      }});
     let message = `Desk Reservation on ${formattedDate} at ${reservationTime} Canceled. \n (Admin Override - PID: ${pid})`
     this.snackBar.open(message, '', { duration: 4000, panelClass: ['center-text', 'success-snackbar'] });
 
-    this.reloadPage();
+    
 
   }
 
-
-  reloadPage() {
-    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-      this.router.navigate(['/admin-reservation']);
-    });
+  /**
+   * FOR ADMIN:
+   * Confirmation prompt for removing a desk reservation.
+   */
+  singularRemoveConfirm(deskReservationsListItem: [DeskReservation, Desk, User]): void {
+    let resDate = new Date(deskReservationsListItem[0].date)
+    let date = resDate.toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: { message: "Are you sure you want to remove the reservation for " + deskReservationsListItem[1].tag + " on " + date + "?" },
+    })
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.removeDeskReservation(deskReservationsListItem)
+      }
+    })
   }
 
+  /**
+   * FOR ADMIN:
+   * Confirmation prompt for removing all future desk reservations.
+   */
+  pastRemoveConfirm(): void {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: { message: "Are you sure you want to remove reservations older than 30 days?" },
+    })
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.deskReservationService.removeOldDeskReservations().subscribe(() => {
+          this.getPastDeskReservations()});
+        let message = "Removed old reservations."
+        this.snackBar.open(message, '', { duration: 4000, panelClass: ['center-text', 'success-snackbar'] })
+      }
+    })
+  }
+
+  /**
+   * FOR ADMIN:
+   * Confirmation prompt for toggling the availability of a desk.
+   */
+  toggleAvailability(desk: Desk): void {
+    if (desk.available) { 
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+        data: { message: "Are you sure you want to make " + desk.tag + " unavailable and remove any current reservations?" },
+      })
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          desk.available = !desk.available;
+          this.deskService.toggleAvailability(desk).subscribe(() => {
+            this.getAllDesks()});
+          this.snackBar.open(desk.tag + " is now unavailable.", '', { duration: 4000, panelClass: ['center-text', 'success-snackbar'] })
+          
+        }
+      })
+    } else {
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+        data: { message: "Are you sure you want to make " + desk.tag + " available?" },
+      })
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          desk.available = !desk.available;
+          this.deskService.toggleAvailability(desk).subscribe(() => {
+            this.getAllDesks()});
+          this.snackBar.open(desk.tag + " is now available.", '', { duration: 4000, panelClass: ['center-text', 'success-snackbar'] })
+        }
+      })
+    }
+  }
 }

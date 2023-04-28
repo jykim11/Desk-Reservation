@@ -45,3 +45,11 @@ def remove_desk(desk: Desk, subject : User = Depends(registered_user), desk_serv
         return desk_service.remove_desk(desk, subject)
     except Exception as e:
         raise HTTPException(status_code=403, detail=str(e))
+    
+# Toggle Desk Availability (For admin)
+@api.put("/admin/toggle_availability", tags=['Desk'])
+def toggle_desk_availability(desk: Desk, subject : User = Depends(registered_user), desk_service: DeskService = Depends()):
+    try:
+        return desk_service.toggle_desk_availability(desk, subject)
+    except Exception as e:
+        raise HTTPException(status_code=403, detail=str(e))

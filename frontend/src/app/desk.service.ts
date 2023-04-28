@@ -54,4 +54,15 @@ export class DeskService {
     return this.http.post<Desk>('/api/desk/admin/remove_desk', desk);
   }
 
+  
+  /**
+   * FOR ADMIN:
+   * Toggle the ability to reserve a desk.
+   * 
+   * @returns observable DeskReservation object.
+   */
+  toggleAvailability(desk: Desk): Observable<Desk> {
+    return this.http.put<Desk>('/api/desk/admin/toggle_availability', desk);
+  }
+
 }

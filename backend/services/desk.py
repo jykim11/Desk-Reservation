@@ -1,10 +1,11 @@
 from fastapi import Depends
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.orm import Session
 from ..database import db_session
 from ..models import User, Desk
-from ..entities import DeskEntity
+from ..entities import DeskEntity, DeskReservationEntity
 from .permission import PermissionService
+from datetime import datetime, timedelta
 
 class DeskService:
     def __init__(self, session: Session = Depends(db_session), permission: PermissionService = Depends()):
@@ -24,7 +25,7 @@ class DeskService:
         Raises:
             PermissionError: If the subject does not have permission to admin access.
         """
-        self._permission.enforce(subject, 'admin/', '*')
+        self._permission.enforce(subject, 'admin/', 'desk')
         stmt = select(DeskEntity).order_by(DeskEntity.id)
         desk_entities = self._session.execute(stmt).scalars()
         return [desk_entity.to_model() for desk_entity in desk_entities]
@@ -53,7 +54,7 @@ class DeskService:
         Raises:
             PermissionError: If the subject does not have permission to admin access.
         """
-        self._permission.enforce(subject, 'admin/', '*')
+        self._permission.enforce(subject, 'admin/', 'desk')
         desk_entity = DeskEntity.from_model(desk)
         self._session.add(desk_entity)
         self._session.commit()
@@ -72,38 +73,29 @@ class DeskService:
         Raises:
             PermissionError: If the subject does not have permission to admin access.
         """
-        self._permission.enforce(subject, 'admin/', '*')
+        self._permission.enforce(subject, 'admin/', 'desk')
         desk_entity = self._session.get(DeskEntity, desk.id)
         self._session.delete(desk_entity)
         self._session.commit()
         return desk_entity.to_model()
-
-
-    def make_desk_unavailable(self, desk: Desk) -> Desk:
-        """Make a desk unavailable.
-
+    
+    def toggle_desk_availability(self, desk: Desk, subject: User) -> Desk:
+        """Toggles whether a desk is able to be reserved and removes any reservations for the desk if it is made unavailable.
         Args:
-            desk: The desk to make unavailable.
-
+            desk: The desk to toggle.
         Returns:
             Desk: The updated desk entity.
         """
+        self._permission.enforce(subject, 'admin/', 'desk')
         desk_entity = self._session.get(DeskEntity, desk.id)
-        desk_entity.available = False
-        self._session.commit()
-        return desk_entity.to_model()
-
-
-    def make_desk_available(self, desk: Desk) -> Desk:
-        """Make a desk available.
-
-        Args:
-            desk: The desk to make available.
-
-        Returns:
-            Desk: The updated desk entity.
-        """
-        desk_entity = self._session.get(DeskEntity, desk.id)
-        desk_entity.available = True
+        if desk_entity.available:
+            desk_entity.available = False
+        else:
+            desk_entity.available = True
+        if not desk_entity.available:
+            stmt = delete(DeskReservationEntity)\
+                .where(DeskReservationEntity.desk_id == desk.id) \
+                .where(DeskReservationEntity.date >= datetime.now().replace(minute=0, second=0, microsecond=0))
+            self._session.execute(stmt)
         self._session.commit()
         return desk_entity.to_model()

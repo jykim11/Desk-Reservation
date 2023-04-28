@@ -74,17 +74,18 @@ export class ReservationDialogComponent implements OnInit {
     const date = (d || new Date());
     const day = (d || new Date()).getDay();
     if (day == 0 || day == 6) { return false; }
+    else if (this.parseDateTime(date, this.times[this.times.length-1]) < new Date()) { return false; }
     else if (this.reservedDates.some((resDate) => resDate.toDateString() == date.toDateString())) {
       let counter = 0;
       this.reservedDates.forEach((resDate) => { if (resDate.toDateString() == date.toDateString()) { counter++; } })
-      if (counter == 8) { return false; }
+      if (counter == this.times.length) { return false; }
     }
     return true
   }
 
 
   isReserved(date: Date, time: string): boolean {
-    return this.reservedDates.some((resDate) => resDate.toString() == this.parseDateTime(date, time).toString());
+    return this.parseDateTime(date, time) < new Date() || this.reservedDates.some((resDate) => resDate.toString() == this.parseDateTime(date, time).toString());
   }
 
   parseDateTime(date: Date, time: string): Date {

@@ -41,6 +41,7 @@ import { MatTableModule } from '@angular/material/table';
 import { ReservationDialogComponent } from './reservation-dialog/reservation-dialog.component';
 import { AdminReservationComponent } from './admin-reservation/admin-reservation.component';
 import { MatSelectModule } from '@angular/material/select';
+import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
 
 @NgModule({
   declarations: [
@@ -53,6 +54,7 @@ import { MatSelectModule } from '@angular/material/select';
     ReservationComponent,
     ReservationDialogComponent,
     AdminReservationComponent,
+    ConfirmationDialogComponent,
   ],
   imports: [
     BrowserModule,

@@ -75,26 +75,16 @@ def test_list_all_desks_as_student(desk_service: DeskService):
     with pytest.raises(UserPermissionError):
         desk_service.list_all_desks(student1)
 
-# Test making the desk unavailable to reserve (for Admin).
-def test_make_desk_unavailable(desk_service: DeskService):
 
+# Test toggleing the desk availability (for Admin).
+def test_toggle_desk_availability(desk_service: DeskService):
     desk_service._permission.enforce(root, 'admin/', '*')
 
-    desk1_unavailable = desk_service.make_desk_unavailable(desk1)
-    assert not desk1_unavailable.available
+    desk_toggle = desk_service.toggle_desk_availability(desk1, root)
+    assert not desk_toggle.available
 
-
-# Test making the desk available to reserve (for Admin).
-def test_make_desk_available(desk_service: DeskService):
-    
-    desk_service._permission.enforce(root, 'admin/', '*')
-
-    desk1_unavailable = desk_service.make_desk_unavailable(desk1)
-    assert not desk1_unavailable.available
-
-    desk1_available = desk_service.make_desk_available(desk1)
-    assert desk1_available.available == True
-
+    desk_toggle = desk_service.toggle_desk_availability(desk1, root)
+    assert desk_toggle.available
 
 # Test to create new desk (Admin).
 def test_create_desk(desk_service: DeskService):

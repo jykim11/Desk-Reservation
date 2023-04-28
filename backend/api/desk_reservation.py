@@ -17,6 +17,29 @@ def list_all_desk_reservations_for_admin(subject : User = Depends(registered_use
     except UserPermissionError as e:
         raise HTTPException(status_code=403, detail=str(e))
     
+# List future desk reservations for admin.
+@api.get("/admin/future", tags=['Reservation'])
+def list_future_desk_reservations_for_admin(subject : User = Depends(registered_user), desk_res: DeskReservationService = Depends()):
+    try:
+        return desk_res.list_future_desk_reservations_for_admin(subject)
+    except UserPermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+
+# List past desk reservations for admin.
+@api.get("/admin/past", tags=['Reservation'])
+def list_past_desk_reservations_for_admin(subject : User = Depends(registered_user), desk_res: DeskReservationService = Depends()):
+    try:
+        return desk_res.list_past_desk_reservations_for_admin(subject)
+    except UserPermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))    
+
+# Remove desk reservation older than 1 month
+@api.delete("/admin/remove_old", tags=['Reservation'])
+def remove_old_desk_reservations(subject : User = Depends(registered_user), desk_res: DeskReservationService = Depends()):
+    try:
+        return desk_res.remove_old_reservations(subject)
+    except UserPermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
 
 # List desk reservations by user
 @api.get("/desk_reservations", tags=['Reservation'])

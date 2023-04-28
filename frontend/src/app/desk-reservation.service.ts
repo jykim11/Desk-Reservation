@@ -25,6 +25,24 @@ export class DeskReservationService {
   }
 
   /**
+   * Retrieve future desk reservations for admin view.
+   * 
+   * @returns observable array of [DeskReservation, Desk, User].
+   */
+  getFutureDeskReservations(): Observable<[[DeskReservation, Desk, User]]> {
+    return this.http.get<[[DeskReservation, Desk, User]]>('/api/reservation/admin/future')
+  }
+
+  /**
+   * Retrieve past desk reservations for admin view.
+   * 
+   * @returns observable array of [DeskReservation, Desk, User].
+   */
+  getPastDeskReservations(): Observable<[[DeskReservation, Desk, User]]> {
+    return this.http.get<[[DeskReservation, Desk, User]]>('/api/reservation/admin/past')
+  }
+
+  /**
    * Retrieve the list of desk reservations by User.
    * 
    * @returns observable array of DeskReservation objects.
@@ -58,6 +76,16 @@ export class DeskReservationService {
    */
   removeDeskReservation(desk: Desk, reservation: DeskReservation): Observable<DeskReservation> {
     return this.http.post<DeskReservation>('/api/reservation/unreserve', { desk, reservation });
+  }
+
+  /**
+   * FOR ADMIN:
+   * Remove old desk reservations from the database.
+   * 
+   * @returns observable DeskReservation object.
+   */
+  removeOldDeskReservations(): Observable<DeskReservation> {
+    return this.http.delete<DeskReservation>('/api/reservation/admin/remove_old', {});
   }
 
 }

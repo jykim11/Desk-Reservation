@@ -1,19 +1,18 @@
 from fastapi import Depends
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.orm import Session
 from ..database import db_session
 from ..models import User, Desk, DeskReservation
 from ..entities import UserEntity, DeskEntity, DeskReservationEntity
 from .permission import PermissionService
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class DeskReservationService:
     def __init__(self, session: Session = Depends(db_session), permission: PermissionService = Depends()):
         self._session = session
         self._permission = permission
-
-
-    def list_all_desk_reservations_for_admin(self, subject: User) -> list[(DeskReservation, Desk, User)]:
+    
+    def list_future_desk_reservations_for_admin(self, subject: User) -> list[(DeskReservation, Desk, User)]:
         """List all desk reservations for admin.
 
         Args:
@@ -25,14 +24,52 @@ class DeskReservationService:
         Raises:
             PermissionError: If the subject does not have permission to admin access.
         """
-        self._permission.enforce(subject, 'admin/', '*')
+        self._permission.enforce(subject, 'admin/', 'desk_reservation')
         stmt = select(DeskReservationEntity, DeskEntity, UserEntity)\
             .join(DeskEntity)\
             .join(UserEntity)\
+            .where(DeskReservationEntity.date >= datetime.now().replace(minute=0, second=0, microsecond=0)) \
             .order_by(DeskReservationEntity.date)
         reservation_entities = self._session.execute(stmt).all()
         return [(desk_reservation_entity, desk_entity, user_entity) for desk_reservation_entity, desk_entity, user_entity in reservation_entities]
     
+    def list_past_desk_reservations_for_admin(self, subject: User) -> list[(DeskReservation, Desk, User)]:
+        """List all desk reservations for admin.
+
+        Args:
+            subject: The user performing the action.
+
+        Returns:
+            list[(DeskReservation, Desk, User)]: A list of tuples, each containing a desk reservation entity, its associated desk entity, and the user who reserved the desk.
+        
+        Raises:
+            PermissionError: If the subject does not have permission to admin access.
+        """
+        self._permission.enforce(subject, 'admin/', 'desk_reservation')
+        stmt = select(DeskReservationEntity, DeskEntity, UserEntity)\
+            .join(DeskEntity)\
+            .join(UserEntity)\
+            .where(DeskReservationEntity.date < datetime.now().replace(minute=0, second=0, microsecond=0)) \
+            .order_by(DeskReservationEntity.date)
+        reservation_entities = self._session.execute(stmt).all()
+        return [(desk_reservation_entity, desk_entity, user_entity) for desk_reservation_entity, desk_entity, user_entity in reservation_entities]
+    
+    def remove_old_reservations(self, subject: User) -> int:
+        """Remove desk reservations older than 1 month.
+        
+        Args:
+            subject: The user performing the action.
+        Returns:
+            None
+        Raises:
+            PermissionError: If the subject does not have permission to admin access.
+        """
+        self._permission.enforce(subject, 'admin/', 'desk_reservation')
+        stmt = delete(DeskReservationEntity)\
+            .where(DeskReservationEntity.date < (datetime.now() - timedelta(days=30)))
+        self._session.execute(stmt)
+        self._session.commit()
+        return 204
 
     def list_desk_reservations_by_user(self, user: User) -> list[(DeskReservation, Desk)]:
         """List desk reservations by user.
@@ -46,7 +83,7 @@ class DeskReservationService:
         stmt = select(DeskReservationEntity, DeskEntity)\
             .join(DeskEntity)\
             .where(DeskReservationEntity.user_id == user.id)\
-            .where(DeskReservationEntity.date >= datetime.now().date()) \
+            .where(DeskReservationEntity.date >= datetime.now().replace(minute=0, second=0, microsecond=0)) \
             .order_by(DeskReservationEntity.date)
         reservation_entities = self._session.execute(stmt).all()
         return [(desk_reservation_entity, desk_entity) for desk_reservation_entity, desk_entity in reservation_entities]
@@ -64,7 +101,7 @@ class DeskReservationService:
 
         stmt = select(DeskReservationEntity)\
             .where(DeskReservationEntity.desk_id == desk_id) \
-            .where(DeskReservationEntity.date >= datetime.now().date())
+            .where(DeskReservationEntity.date >= datetime.now().replace(minute=0, second=0, microsecond=0))
         reservations = self._session.execute(stmt).scalars()
         return [reservation.to_model() for reservation in reservations]
 
