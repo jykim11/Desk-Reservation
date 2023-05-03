@@ -5,7 +5,6 @@ import { FormControl, Validators } from '@angular/forms';
 
 export interface TypeSelector {
   value: string;
-  disabled?: boolean;
 }
 
 @Component({
@@ -25,7 +24,7 @@ export class AdminDeskDialogComponent {
 
   inc_resource_options: TypeSelector[] = [
     { value: '' },
-    { value: 'Windows Desktop i5', disabled: this.data.included_resource === 'Windows Desktop i5' },
+    { value: 'Windows Desktop i5' },
     { value: 'Windows Desktop i7' },
     { value: 'Windows Desktop i9' },
     { value: 'iMac 24 w/ Mac Mini' },
@@ -52,11 +51,17 @@ export class AdminDeskDialogComponent {
     this.newDeskIncludedResource = new FormControl('',);
   }
 
+
   onNoClick(): void {
     this.dialogRef.close();
 
   }
 
+  /**
+   * Passing the new Desk Type and new resources from the 
+   * dialog upon the admin clicking "Update".
+   * 
+   */
   onUpdateClick(): void {
     const new_type = this.newDeskType.value;
     const new_resource = this.newDeskIncludedResource.value;

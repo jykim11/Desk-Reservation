@@ -5,7 +5,7 @@ from ..database import db_session
 from ..models import User, Desk
 from ..entities import DeskEntity, DeskReservationEntity
 from .permission import PermissionService
-from datetime import datetime, timedelta
+from datetime import datetime
 
 class DeskService:
     def __init__(self, session: Session = Depends(db_session), permission: PermissionService = Depends()):
@@ -78,6 +78,7 @@ class DeskService:
         self._session.delete(desk_entity)
         self._session.commit()
         return desk_entity.to_model()
+    
     
     def toggle_desk_availability(self, desk: Desk, subject: User) -> Desk:
         """Toggles whether a desk is able to be reserved and removes any reservations for the desk if it is made unavailable.

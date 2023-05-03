@@ -1,6 +1,8 @@
-"""Reservation API
+"""
+    Reservation API
 
-This API is used to modify available resources."""
+    This API is used to modify available resources.
+"""
 
 from fastapi import APIRouter, Depends, HTTPException
 from ..models import User, Desk, DeskReservation
@@ -67,6 +69,7 @@ def create_desk_reservation(desk: Desk, reservation: DeskReservation, subject : 
     except Exception as e:
         print(str(e))
         raise HTTPException(status_code=422, detail=str(e))  
+
 
 # Unreserve desk
 @api.post("/unreserve", tags=['Reservation'])

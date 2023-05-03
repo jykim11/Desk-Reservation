@@ -12,6 +12,7 @@ class DeskReservationService:
         self._session = session
         self._permission = permission
     
+
     def list_future_desk_reservations_for_admin(self, subject: User) -> list[(DeskReservation, Desk, User)]:
         """List all desk reservations for admin.
 
@@ -33,6 +34,7 @@ class DeskReservationService:
         reservation_entities = self._session.execute(stmt).all()
         return [(desk_reservation_entity, desk_entity, user_entity) for desk_reservation_entity, desk_entity, user_entity in reservation_entities]
     
+
     def list_past_desk_reservations_for_admin(self, subject: User) -> list[(DeskReservation, Desk, User)]:
         """List all desk reservations for admin.
 
@@ -54,6 +56,7 @@ class DeskReservationService:
         reservation_entities = self._session.execute(stmt).all()
         return [(desk_reservation_entity, desk_entity, user_entity) for desk_reservation_entity, desk_entity, user_entity in reservation_entities]
     
+
     def remove_old_reservations(self, subject: User) -> int:
         """Remove desk reservations older than 1 month.
         
@@ -70,6 +73,7 @@ class DeskReservationService:
         self._session.execute(stmt)
         self._session.commit()
         return 204
+
 
     def list_desk_reservations_by_user(self, user: User) -> list[(DeskReservation, Desk)]:
         """List desk reservations by user.

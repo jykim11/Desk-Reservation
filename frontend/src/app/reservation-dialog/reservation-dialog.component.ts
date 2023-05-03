@@ -38,6 +38,7 @@ export class ReservationDialogComponent implements OnInit {
     })
   }
 
+
   ngOnInit(): void {
     this.deskReservationService.getDeskReservationDeskId(this.chosenDesk).subscribe(res => {
       res.forEach(reservation => {
@@ -46,9 +47,11 @@ export class ReservationDialogComponent implements OnInit {
     })
   }
 
+
   onNoClick(): void {
     this.dialogRef.close();
   }
+
 
   onConfirmClick(): void {
     this.dialogRef.close();
@@ -74,7 +77,7 @@ export class ReservationDialogComponent implements OnInit {
     const date = (d || new Date());
     const day = (d || new Date()).getDay();
     if (day == 0 || day == 6) { return false; }
-    else if (this.parseDateTime(date, this.times[this.times.length-1]) < new Date()) { return false; }
+    else if (this.parseDateTime(date, this.times[this.times.length - 1]) < new Date()) { return false; }
     else if (this.reservedDates.some((resDate) => resDate.toDateString() == date.toDateString())) {
       let counter = 0;
       this.reservedDates.forEach((resDate) => { if (resDate.toDateString() == date.toDateString()) { counter++; } })
@@ -83,11 +86,18 @@ export class ReservationDialogComponent implements OnInit {
     return true
   }
 
-
+  /**
+   * Checking to see if the date and specific time is reserved.
+   * 
+   */
   isReserved(date: Date, time: string): boolean {
     return this.parseDateTime(date, time) < new Date() || this.reservedDates.some((resDate) => resDate.toString() == this.parseDateTime(date, time).toString());
   }
 
+  /**
+   * Parsing the date and time.
+   * 
+   */
   parseDateTime(date: Date, time: string): Date {
     if (!date) {
       return new Date();
